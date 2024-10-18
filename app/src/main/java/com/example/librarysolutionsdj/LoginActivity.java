@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -39,6 +41,18 @@ public class LoginActivity extends AppCompatActivity {
         usernameEditText = findViewById(R.id.user);
         passwordEditText = findViewById(R.id.password);
         loginButton = findViewById(R.id.access);
+
+        // Troba el ImageButton amb l'ID "back"
+        ImageButton backButton = findViewById(R.id.back);
+
+        // Afegeix el listener per a que al fer click en la ImageButton torni a la página anterior
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Finaliza la actividad actual y vuelve a la anterior
+                finish();
+            }
+        });
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
