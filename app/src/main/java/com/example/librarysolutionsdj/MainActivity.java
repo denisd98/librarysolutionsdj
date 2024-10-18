@@ -12,19 +12,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 public class MainActivity extends AppCompatActivity {
-
-    MySQLConnection mySQLConnection;
-    Connection con;
-    ResultSet rs;
-    String name, str;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,36 +38,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        mySQLConnection = new MySQLConnection();
-        connect();
     }
-
-    public void connect() {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.execute(() -> {
-            try {
-                con = mySQLConnection.conn();
-                if (con == null) {
-                    str = "Error al conectar-se al servidor SQL";
-                } else {
-                    str = "Conectat amb èxit al servidor SQL";
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
-            runOnUiThread(() -> {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
-            });
-        });
-    }
-
-/*pr232434.*/
 
 }
