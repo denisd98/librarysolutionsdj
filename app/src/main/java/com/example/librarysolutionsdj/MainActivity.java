@@ -12,6 +12,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+// Pantalla principal de la APP que da la bienvenida a cualquier usuario que entre.
+// También, se le ofrece al usuario Loguearse o Registrarse (Aún no implementado)
 public class MainActivity extends AppCompatActivity {
 
     @Override

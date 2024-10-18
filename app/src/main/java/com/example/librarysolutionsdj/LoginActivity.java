@@ -21,6 +21,10 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+
+//La pantalla de Login.
+//Implementada la conexión con el servidor de sockets con conector JDBC.
+
 public class LoginActivity extends AppCompatActivity {
 
     EditText usernameEditText;
@@ -42,10 +46,10 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.password);
         loginButton = findViewById(R.id.access);
 
-        // Troba el ImageButton amb l'ID "back"
+        //Se identifica el ID del botón para volver a la pantalla anterior
         ImageButton backButton = findViewById(R.id.back);
 
-        // Afegeix el listener per a que al fer click en la ImageButton torni a la página anterior
+        // Listener para que al hacer click en el botón se abra la pantalla anterior
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -54,37 +58,45 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+
+        // Listener para el boton de acceder.
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // se indentifican los campos de usuario y contraseña
                 String username = usernameEditText.getText().toString();
                 String password = passwordEditText.getText().toString();
 
                 new Thread(() -> {
                     try {
-                        Socket socket = new Socket("10.0.2.2", 12345);
+                        Socket socket = new Socket("10.0.2.2", 12345); //si la app se prueba en una máquina virtual de Android Studio, la ip debe ser la 10.0.2.2
                         PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
+
+                        // se envían los datos de usuario y contraseña
                         out.println(username);
                         out.println(password);
 
                         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                         String response = in.readLine();
+                        // esperamos respuesta del servidor a nuestra consulta
 
                         runOnUiThread(() -> {
-                            if ("LOGIN_OK".equals(response)) {
+                            if ("LOGIN_OK".equals(response)) { // si los datos coinciden, nos da LOGIN OK
                                 Toast.makeText(LoginActivity.this, "Login OK", Toast.LENGTH_SHORT).show();
 
-                                //Redirigir l'usuari al PanellUsuari.java
+                                //Y se redirige al usuario a su panel de usuario. Se gestiona en la clase "PanellUsuari.java"
                                 Intent intent = new Intent(LoginActivity.this, PanellUsuari.class);
                                 startActivity(intent);
 
                             } else {
+                                // si los datos enviado no coinciden, mostramos error de datos incorrectos.
                                 Toast.makeText(LoginActivity.this, "Dades incorrectes", Toast.LENGTH_SHORT).show();
                             }
                         });
 
-                        socket.close();
+                        socket.close(); // cerramos conexión
                     } catch (Exception e){
+                        // mostramos errores en pantalla (solo para pruebas)
                         runOnUiThread(() -> Toast.makeText(LoginActivity.this, "ERROR: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                     }
                 }).start();
