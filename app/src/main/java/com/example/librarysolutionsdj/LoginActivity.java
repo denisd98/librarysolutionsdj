@@ -72,6 +72,8 @@ public class LoginActivity extends AppCompatActivity {
                         Socket socket = new Socket("10.0.2.2", 12345); //si la app se prueba en una máquina virtual de Android Studio, la ip debe ser la 10.0.2.2
                         PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
 
+                        // Primero enviar el comando LOGIN
+                        out.println("LOGIN");
                         // se envían los datos de usuario y contraseña
                         out.println(username);
                         out.println(password);

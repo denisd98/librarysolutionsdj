@@ -36,6 +36,22 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.976" />
 
+    <Button
+        android:id="@+id/logout_btn"
+        android:layout_width="388dp"
+        android:layout_height="50dp"
+        android:backgroundTint="#3D5EA0"
+        android:fontFamily="monospace"
+        android:text="Tancar sessió"
+        android:textSize="20sp"
+        app:cornerRadius="0px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.695"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.864" />
+
     <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
@@ -68,8 +84,8 @@
 
     <Button
         android:id="@+id/editar_perfil"
-        android:layout_width="374dp"
-        android:layout_height="39dp"
+        android:layout_width="388dp"
+        android:layout_height="38dp"
         android:backgroundTint="#3FA9F5"
         android:fontFamily="monospace"
         android:text="Editar el perfil"
@@ -78,10 +94,10 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.675"
+        app:layout_constraintHorizontal_bias="0.695"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.381" />
+        app:layout_constraintVertical_bias="0.369" />
 
     <Button
         android:id="@+id/reserves"
@@ -148,28 +164,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.77" />
-
-    <Button
-        android:id="@+id/logout"
-        android:layout_width="374dp"
-        android:layout_height="55dp"
-        android:backgroundTint="#F2F2F2"
-        android:drawableRight="@android:drawable/ic_menu_revert"
-        android:drawableTint="#03A9F4"
-        android:drawableTintMode="add"
-        android:fontFamily="monospace"
-        android:text="Tancar sessió"
-        android:textAlignment="textStart"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:cornerRadius="0px"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.675"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.871" />
 
     <Button
         android:id="@+id/edit_profile"
