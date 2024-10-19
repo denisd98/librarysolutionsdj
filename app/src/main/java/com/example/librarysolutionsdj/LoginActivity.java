@@ -1,12 +1,12 @@
 package com.example.librarysolutionsdj;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -20,10 +20,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-
-
-//La pantalla de Login.
-//Implementada la conexión con el servidor de sockets con conector JDBC.
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -46,65 +42,76 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.password);
         loginButton = findViewById(R.id.access);
 
-        //Se identifica el ID del botón para volver a la pantalla anterior
+        //Se identifica el ID del botón para volver a la pantalla de MainActivity
         ImageButton backButton = findViewById(R.id.back);
 
-        // Listener para que al hacer click en el botón se abra la pantalla anterior
+        // Listener para que al hacer click en el botón redirija a MainActivity
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Finaliza la actividad actual y vuelve a la anterior
-                finish();
+                // Crear un Intent para MainActivity
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();  // Cerrar la actividad actual para que no se pueda volver a ella con el botón "Atrás"
             }
         });
 
-
-        // Listener para el boton de acceder.
+        // Listener para el botón de acceder.
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // se indentifican los campos de usuario y contraseña
+                // Se identifican los campos de usuario y contraseña
                 String username = usernameEditText.getText().toString();
                 String password = passwordEditText.getText().toString();
 
                 new Thread(() -> {
                     try {
-                        Socket socket = new Socket("10.0.2.2", 12345); //si la app se prueba en una máquina virtual de Android Studio, la ip debe ser la 10.0.2.2
+                        Socket socket = new Socket("10.0.2.2", 12345); //si la app se prueba en una máquina virtual de Android Studio, la ip tiene que ser la 10.0.2.2
                         PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
 
-                        // Primero enviar el comando LOGIN
+                        // Primero enviar el comando LOGIN para que el servidor pueda identificar el tipo de comando
                         out.println("LOGIN");
-                        // se envían los datos de usuario y contraseña
+                        // Se envían los datos de usuario y contraseña
                         out.println(username);
                         out.println(password);
 
                         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                         String response = in.readLine();
-                        // esperamos respuesta del servidor a nuestra consulta
 
-                        runOnUiThread(() -> {
-                            if ("LOGIN_OK".equals(response)) { // si los datos coinciden, nos da LOGIN OK
+                        // Esperar respuesta del servidor
+                        if ("LOGIN_OK".equals(response)) { // Si los datos coinciden, recibimos LOGIN OK
+                            // Leer el identificador de sesión
+                            String sessionId = in.readLine().split(":")[1]; // Formato esperado: SESSION_ID:<id>
+                            String userType = in.readLine().split(":")[1];  // Formato esperado: USER_TYPE:<type>
+
+                            // Guardar el identificador de sesión y el tipo de usuario en SharedPreferences
+                            SharedPreferences preferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = preferences.edit();
+                            editor.putString("SESSION_ID", sessionId);  // Guardar session ID
+                            editor.putString("USER_TYPE", userType);    // Guardar el tipo de usuario
+                            editor.apply();
+
+                            // Actualizar la interfaz en el hilo principal
+                            runOnUiThread(() -> {
                                 Toast.makeText(LoginActivity.this, "Login OK", Toast.LENGTH_SHORT).show();
 
-                                //Y se redirige al usuario a su panel de usuario. Se gestiona en la clase "PanellUsuari.java"
+                                // Redirigir al panel de usuario. Se gestiona en la clase "PanellUsuari.java"
                                 Intent intent = new Intent(LoginActivity.this, PanellUsuari.class);
                                 startActivity(intent);
+                            });
 
-                            } else {
-                                // si los datos enviado no coinciden, mostramos error de datos incorrectos.
-                                Toast.makeText(LoginActivity.this, "Dades incorrectes", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        } else {
+                            // Si los datos enviados no coinciden, mostramos error
+                            runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Dades incorrectes", Toast.LENGTH_SHORT).show());
+                        }
 
-                        socket.close(); // cerramos conexión
-                    } catch (Exception e){
-                        // mostramos errores en pantalla (solo para pruebas)
+                        socket.close(); // Cerramos conexión
+                    } catch (Exception e) {
+                        // Mostrar errores en pantalla (solo para pruebas)
                         runOnUiThread(() -> Toast.makeText(LoginActivity.this, "ERROR: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                     }
                 }).start();
             }
         });
     }
-
-
 }
