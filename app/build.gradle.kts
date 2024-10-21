@@ -40,5 +40,17 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    // para pruebas con MySQL. implementation("mysql:mysql-connector-java:5.1.49")
+
+    // JUnit para pruebas unitarias
+    testImplementation("junit:junit:4.13.2")
+
+    // Mockito para pruebas unitarias y de integración
+    testImplementation("org.mockito:mockito-core:4.11.0")
+    androidTestImplementation("org.mockito:mockito-android:4.11.0")
+
+    // Espresso para pruebas de UI
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+    // JUnit para pruebas instrumentadas de Android
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
 }

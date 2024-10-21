@@ -1,5 +1,7 @@
 package com.example.librarysolutionsdj;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -65,6 +67,7 @@ public class LoginActivity extends AppCompatActivity {
         usernameEditText = findViewById(R.id.user);
         passwordEditText = findViewById(R.id.password);
         loginButton = findViewById(R.id.access);
+
 
         // Es configura el botó de tornada per tornar a la pantalla principal (MainActivity)
         ImageButton backButton = findViewById(R.id.back);
@@ -149,5 +152,7 @@ public class LoginActivity extends AppCompatActivity {
                 }).start();
             }
         });
+
     }
+
 }
