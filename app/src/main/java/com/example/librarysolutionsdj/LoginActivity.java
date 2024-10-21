@@ -21,17 +21,41 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+/**
+ * Classe que gestiona la pantalla d'inici de sessió de l'aplicació.
+ * L'usuari introdueix les seves credencials per a accedir al sistema.
+ *
+ * Aquesta classe extén {@link AppCompatActivity} i maneja la connexió amb un servidor
+ * per a validar les credencials mitjançant sockets.
+ *
+ * @author Denys Dyachuk
+ * @version 0.3, 21/10/24
+ */
 public class LoginActivity extends AppCompatActivity {
 
+
+    // Camps d'entrada per l'usuari i la contrasenya.
     EditText usernameEditText;
     EditText passwordEditText;
+
+    // Botó d'inici de sessió.
     Button loginButton;
 
+    /**
+     * Mètode principal que s'executa en iniciar l'activitat.
+     *
+     * Configura la interfície d'usuari, els listeners dels botons i la connexió
+     * amb el servidor per validar les credencials d'inici de sessió.
+     *
+     * @param savedInstanceState Paràmetre opcional que conté l'estat guardat de l'activitat, si està disponible.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
+
+        // Configura els marges per als insets del sistema.
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -42,72 +66,84 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.password);
         loginButton = findViewById(R.id.access);
 
-        //Se identifica el ID del botón para volver a la pantalla de MainActivity
+        // Es configura el botó de tornada per tornar a la pantalla principal (MainActivity)
         ImageButton backButton = findViewById(R.id.back);
-
-        // Listener para que al hacer click en el botón redirija a MainActivity
         backButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Mètode que s'executa quan es fa clic al botó de tornada.
+             * Torna a la pantalla principal {@link MainActivity}.
+             *
+             * @param v La vista que ha estat clicada.
+             */
             @Override
             public void onClick(View v) {
-                // Crear un Intent para MainActivity
+                // Crear un Intent per a tornar a MainActivity
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
-                finish();  // Cerrar la actividad actual para que no se pueda volver a ella con el botón "Atrás"
+                finish();
             }
         });
 
-        // Listener para el botón de acceder.
+        // Es configura el listener del botó d'accés per gestionar l'inici de sessió
         loginButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Mètode que s'executa quan es fa clic al botó d'accés.
+             * Envia les credencials d'usuari al servidor per a validar-les.
+             *
+             * @param view La vista que ha estat clicada.
+             */
             @Override
             public void onClick(View view) {
-                // Se identifican los campos de usuario y contraseña
+                // S'obtenen els camps d'usuari i contrasenya
                 String username = usernameEditText.getText().toString();
                 String password = passwordEditText.getText().toString();
 
+                // Es crea un fil per manejar la connexió amb el servidor
                 new Thread(() -> {
                     try {
-                        Socket socket = new Socket("10.0.2.2", 12345); //si la app se prueba en una máquina virtual de Android Studio, la ip tiene que ser la 10.0.2.2
+                        // Connexió al servidor amb sockets
+                        Socket socket = new Socket("10.0.2.2", 12345); // IP de la màquina virtual d'Android Studio
                         PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
 
-                        // Primero enviar el comando LOGIN para que el servidor pueda identificar el tipo de comando
+                        // S'envia el comandament LOGIN al servidor
                         out.println("LOGIN");
-                        // Se envían los datos de usuario y contraseña
                         out.println(username);
                         out.println(password);
 
                         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                         String response = in.readLine();
 
-                        // Esperar respuesta del servidor
-                        if ("LOGIN_OK".equals(response)) { // Si los datos coinciden, recibimos LOGIN OK
-                            // Leer el identificador de sesión
-                            String sessionId = in.readLine().split(":")[1]; // Formato esperado: SESSION_ID:<id>
-                            String userType = in.readLine().split(":")[1];  // Formato esperado: USER_TYPE:<type>
+                        // Es comprova la resposta del servidor
+                        if ("LOGIN_OK".equals(response)) {
+                            // S'obté el session ID i el tipus d'usuari
+                            String sessionId = in.readLine().split(":")[1];
+                            String userType = in.readLine().split(":")[1];
 
-                            // Guardar el identificador de sesión y el tipo de usuario en SharedPreferences
+                            // Es guarden les dades de sessió a SharedPreferences
                             SharedPreferences preferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
                             SharedPreferences.Editor editor = preferences.edit();
-                            editor.putString("SESSION_ID", sessionId);  // Guardar session ID
-                            editor.putString("USER_TYPE", userType);    // Guardar el tipo de usuario
+                            editor.putString("SESSION_ID", sessionId);
+                            editor.putString("USER_TYPE", userType);
                             editor.apply();
 
-                            // Actualizar la interfaz en el hilo principal
+                            // Actualització de la interfície en el fil principal
                             runOnUiThread(() -> {
                                 Toast.makeText(LoginActivity.this, "Login OK", Toast.LENGTH_SHORT).show();
 
-                                // Redirigir al panel de usuario. Se gestiona en la clase "PanellUsuari.java"
+                                // Es redirigeix al panell d'usuari
                                 Intent intent = new Intent(LoginActivity.this, PanellUsuari.class);
                                 startActivity(intent);
                             });
 
                         } else {
-                            // Si los datos enviados no coinciden, mostramos error
+                            // Si les dades són incorrectes, es mostra un error
                             runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Dades incorrectes", Toast.LENGTH_SHORT).show());
                         }
 
-                        socket.close(); // Cerramos conexión
+                        // Es tanca la connexió
+                        socket.close();
                     } catch (Exception e) {
-                        // Mostrar errores en pantalla (solo para pruebas)
+                        // Es mostren els errors per pantalla (només per a proves)
                         runOnUiThread(() -> Toast.makeText(LoginActivity.this, "ERROR: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                     }
                 }).start();

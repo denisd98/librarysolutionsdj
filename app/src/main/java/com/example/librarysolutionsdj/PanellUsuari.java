@@ -19,57 +19,83 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+/**
+ * Classe que gestiona el panell de l'usuari dins l'aplicació.
+ * Permet veure i gestionar la informació del perfil de l'usuari i tancar la sessió.
+ *
+ * Aquesta classe extén {@link AppCompatActivity} i realitza connexions amb un servidor per obtenir
+ * el perfil de l'usuari i gestionar el procés de logout.
+ *
+ * @author Denys Dyachuk
+ * @version 0.3, 21/10/24
+ */
 public class PanellUsuari extends AppCompatActivity {
 
-    // Declaración de los elementos de la interfaz para mostrar la información del usuario
+    /**
+     * TextViews per mostrar la informació de l'usuari a la interfície.
+     */
     TextView userAliasTextView, usernameTextView, surname1TextView, surname2TextView, userTypeTextView;
+
+    /**
+     * Botó de gestió d'usuaris, visible només per a usuaris admin o treballadors.
+     */
     Button gestioUsuarisButton;
 
+    /**
+     * Mètode principal que s'executa en iniciar l'activitat.
+     *
+     * Aquest mètode configura la interfície d'usuari, recupera les dades del perfil de l'usuari
+     * des d'un servidor remot i configura la funcionalitat de logout.
+     *
+     * @param savedInstanceState Paràmetre opcional que conté l'estat guardat de l'activitat, si està disponible.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_panell_usuari);
+
+        // Configura els marges per als insets del sistema.
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // Referencias a los TextView del perfil del usuario
-        userAliasTextView = findViewById(R.id.useralias);
-        usernameTextView = findViewById(R.id.username);
+        // Referències als TextView del perfil de l'usuari
+        userAliasTextView = findViewById(R.id.username);
+        usernameTextView = findViewById(R.id.realname);
         surname1TextView = findViewById(R.id.surname1);
         surname2TextView = findViewById(R.id.surname2);
         userTypeTextView = findViewById(R.id.usertype);
 
-        // Referencia al botón de gestión de usuarios
+        // Referència al botó de gestió d'usuaris
         gestioUsuarisButton = findViewById(R.id.gestio_usuaris);
-        gestioUsuarisButton.setVisibility(Button.GONE); // Ocultar el botón por defecto
+        gestioUsuarisButton.setVisibility(Button.GONE); // Ocultem el botó per defecte
 
-        // Llamar al método para obtener los datos del usuario
+        // Crida al mètode per obtenir el perfil de l'usuari
         getUserProfile();
 
-        // Funcionalidad del botón de logout
+        // Funcionalitat del botó de logout
         Button logoutButton = findViewById(R.id.logout_btn);
         logoutButton.setOnClickListener(view -> {
             new Thread(() -> {
                 try {
-                    // Obtener el identificador de sesión guardado en SharedPreferences
+                    // Obtenim el session ID guardat a SharedPreferences
                     SharedPreferences preferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
                     String sessionId = preferences.getString("SESSION_ID", null);
 
                     if (sessionId == null) {
-                        // Si no se encuentra sesión activa, mostrar error
-                        runOnUiThread(() -> Toast.makeText(PanellUsuari.this, "No hay sesión activa", Toast.LENGTH_SHORT).show());
+                        // Si no hi ha cap sessió activa, mostrar error
+                        runOnUiThread(() -> Toast.makeText(PanellUsuari.this, "No hi ha sessió activa", Toast.LENGTH_SHORT).show());
                         return;
                     }
 
-                    // Conectarse al servidor para realizar el logout
-                    Socket socket = new Socket("10.0.2.2", 12345);  // Actualiza la IP y puerto según sea necesario
+                    // Connexió al servidor per realitzar el logout
+                    Socket socket = new Socket("10.0.2.2", 12345); //IP de la màquina virtual Android Studio
                     PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
 
-                    // Enviar el comando "LOGOUT" y el identificador de sesión al servidor
+                    // Enviar el comandament "LOGOUT" i el session ID al servidor
                     out.println("LOGOUT");
                     out.println(sessionId);
 
@@ -78,25 +104,25 @@ public class PanellUsuari extends AppCompatActivity {
 
                     runOnUiThread(() -> {
                         if ("LOGOUT_OK".equals(response)) {
-                            // Logout exitoso: eliminar los datos de sesión locales
+                            // Si el logout és exitós, eliminar les dades locals de la sessió
                             SharedPreferences.Editor editor = preferences.edit();
-                            editor.clear();  // Eliminar todos los datos guardados, incluyendo el sessionId
+                            editor.clear();
                             editor.apply();
 
-                            // Mostrar mensaje de sesión cerrada con éxito
+                            // Mostrar missatge de sessió tancada correctament
                             Toast.makeText(PanellUsuari.this, "Sessió tancada amb èxit", Toast.LENGTH_SHORT).show();
 
-                            // Redirigir al usuario a la pantalla de login
+                            // Redirigir l'usuari a la pantalla de login
                             Intent intent = new Intent(PanellUsuari.this, LoginActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);  // Eliminar la pila de actividades
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
-                            finish();  // Cerrar la actividad actual
+                            finish();  // Tancar l'activitat actual
                         } else {
-                            Toast.makeText(PanellUsuari.this, "Error al cerrar sesión", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PanellUsuari.this, "Error en tancar sessió", Toast.LENGTH_SHORT).show();
                         }
                     });
 
-                    socket.close();  // Cerrar la conexión
+                    socket.close();  // Tancar la connexió
 
                 } catch (Exception e) {
                     runOnUiThread(() -> Toast.makeText(PanellUsuari.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
@@ -105,36 +131,41 @@ public class PanellUsuari extends AppCompatActivity {
         });
     }
 
+    /**
+     * Mètode per obtenir el perfil de l'usuari des del servidor.
+     * Aquest mètode es connecta al servidor per recuperar la informació del perfil
+     * de l'usuari, com el nom d'usuari, nom, cognoms i tipus d'usuari.
+     */
     private void getUserProfile() {
         new Thread(() -> {
             try {
-                // Obtener el identificador de sesión guardado en SharedPreferences
+                // Obtenim el session ID guardat a SharedPreferences
                 SharedPreferences preferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
                 String sessionId = preferences.getString("SESSION_ID", null);
 
                 if (sessionId == null) {
-                    runOnUiThread(() -> Toast.makeText(PanellUsuari.this, "No hay sesión activa", Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> Toast.makeText(PanellUsuari.this, "No hi ha sessió activa", Toast.LENGTH_SHORT).show());
                     return;
                 }
 
-                // Conectarse al servidor para obtener el perfil del usuario
-                Socket socket = new Socket("10.0.2.2", 12345);  // Actualiza la IP y puerto según sea necesario
+                // Connexió al servidor per obtenir el perfil de l'usuari
+                Socket socket = new Socket("10.0.2.2", 12345);//IP de la màquina virtual Android Studio
                 PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
 
-                // Enviar el comando "GET_PROFILE" y el identificador de sesión
+                // Enviar el comandament "GET_PROFILE" i el session ID
                 out.println("GET_PROFILE");
                 out.println(sessionId);
 
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-                // Leer la respuesta del servidor con los datos del usuario
+                // Llegir la resposta del servidor amb les dades de l'usuari
                 String userAlias = in.readLine();
                 String username = in.readLine();
                 String surname1 = in.readLine();
                 String surname2 = in.readLine();
                 String userType = in.readLine();
 
-                // Mostrar los datos en la interfaz de usuario
+                // Mostrar les dades a la interfície d'usuari
                 runOnUiThread(() -> {
                     userAliasTextView.setText(userAlias);
                     usernameTextView.setText(username);
@@ -142,16 +173,16 @@ public class PanellUsuari extends AppCompatActivity {
                     surname2TextView.setText(surname2);
                     userTypeTextView.setText(userType);
 
-                    // Si el usuario es Admin o Worker, hacer visible el botón de gestión de usuarios
+                    // Si l'usuari és Admin o Treballador, fer visible el botó de gestió d'usuaris
                     if ("ADMIN".equals(userType) || "WORKER".equals(userType)) {
                         gestioUsuarisButton.setVisibility(Button.VISIBLE);
                     }
                 });
 
-                socket.close();  // Cerrar la conexión
+                socket.close();  // Tancar la connexió
 
             } catch (Exception e) {
-                runOnUiThread(() -> Toast.makeText(PanellUsuari.this, "Error al obtener el perfil: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(PanellUsuari.this, "Error en obtenir el perfil: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
