@@ -15,6 +15,9 @@
         android:theme="@style/Theme.LibrarySolutionSDJ"
         tools:targetApi="31">
         <activity
+            android:name=".UserCreate"
+            android:exported="false" />
+        <activity
             android:name=".UserDetailActivity"
             android:exported="false" />
         <activity
