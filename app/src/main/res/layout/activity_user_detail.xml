@@ -5,169 +5,27 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:hapticFeedbackEnabled="false"
-    android:background="@color/white"
-    tools:context=".PanellUsuari">
+    tools:context=".UserDetailActivity">
 
-    <Button
-        android:id="@+id/accedir_biblioteca"
-        android:layout_width="388dp"
-        android:layout_height="50dp"
-        android:backgroundTint="#3FA9F5"
-        android:fontFamily="monospace"
-        android:text="Accedir a la bibilioteca"
-        android:textSize="20sp"
+    <ImageButton
+        android:id="@+id/back"
+        android:layout_width="34dp"
+        android:layout_height="42dp"
+        android:backgroundTint="#A4A4A4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.695"
+        app:layout_constraintHorizontal_bias="0.026"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.976" />
-
-    <Button
-        android:id="@+id/logout_btn"
-        android:layout_width="388dp"
-        android:layout_height="50dp"
-        android:backgroundTint="#3D5EA0"
-        android:fontFamily="monospace"
-        android:text="Tancar sessió"
-        android:textSize="20sp"
-        app:cornerRadius="0px"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.695"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.864" />
-
-    <Button
-        android:id="@+id/editar_perfil"
-        android:layout_width="388dp"
-        android:layout_height="38dp"
-        android:backgroundTint="#3FA9F5"
-        android:fontFamily="monospace"
-        android:text="Editar el perfil"
-        android:textAlignment="center"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.695"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.369" />
-
-    <Button
-        android:id="@+id/gestio_usuaris_btn"
-        android:layout_width="388dp"
-        android:layout_height="38dp"
-        android:backgroundTint="#3F51B5"
-        android:fontFamily="monospace"
-        android:text="Gestió d'usuaris"
-        android:textAlignment="center"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.695"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.314" />
-
-    <Button
-        android:id="@+id/reserves"
-        android:layout_width="374dp"
-        android:layout_height="55dp"
-        android:backgroundTint="#F2F2F2"
-        android:drawableRight="@android:drawable/ic_menu_recent_history"
-        android:drawableTint="#03A9F4"
-        android:drawableTintMode="add"
-        android:fontFamily="monospace"
-        android:text="Reserves"
-        android:textAlignment="textStart"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:cornerRadius="0px"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.675"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.468" />
-
-    <Button
-        android:id="@+id/edit_profile3"
-        android:layout_width="374dp"
-        android:layout_height="55dp"
-        android:backgroundTint="#F2F2F2"
-        android:drawableRight="@android:drawable/ic_menu_sort_by_size"
-        android:drawableTint="#03A9F4"
-        android:drawableTintMode="add"
-        android:fontFamily="monospace"
-        android:text="Estadistiques"
-        android:textAlignment="textStart"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:cornerRadius="0px"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.675"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.568" />
-
-    <Button
-        android:id="@+id/edit_profile4"
-        android:layout_width="374dp"
-        android:layout_height="55dp"
-        android:backgroundTint="#F2F2F2"
-        android:drawableRight="@android:drawable/ic_menu_info_details"
-        android:drawableTint="#03A9F4"
-        android:drawableTintMode="add"
-        android:fontFamily="monospace"
-        android:text="Alertes i missatges"
-        android:textAlignment="textStart"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:cornerRadius="0px"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.675"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.77" />
-
-    <Button
-        android:id="@+id/edit_profile"
-        android:layout_width="374dp"
-        android:layout_height="55dp"
-        android:backgroundTint="#F2F2F2"
-        android:drawableRight="@android:drawable/ic_menu_help"
-        android:drawableTint="#03A9F4"
-        android:drawableTintMode="add"
-        android:fontFamily="monospace"
-        android:text="Ajuda i suport tècnic"
-        android:textAlignment="textStart"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:cornerRadius="0px"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.675"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.67" />
+        app:layout_constraintVertical_bias="0.023"
+        app:srcCompat="@android:drawable/ic_menu_revert" />
 
     <TextView
-        android:id="@+id/textView6"
+        android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="monospace"
-        android:text="El meu Perfil"
+        android:text="Perfil d'usuari"
         android:textSize="34sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -177,53 +35,78 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.022" />
 
-    <TextView
-        android:id="@+id/username_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <Button
+        android:id="@+id/edit_button"
+        android:layout_width="390dp"
+        android:layout_height="37dp"
+        android:backgroundTint="#3F51B5"
         android:fontFamily="monospace"
-        android:text="Nom d'usuari:"
-        android:textSize="16sp"
+        android:text="Modificar les dades"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.07"
+        app:layout_constraintHorizontal_bias="0.761"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.11" />
+        app:layout_constraintVertical_bias="0.445" />
 
-    <TextView
-        android:id="@+id/realname_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <Button
+        android:id="@+id/save_button"
+        android:layout_width="390dp"
+        android:layout_height="37dp"
+        android:backgroundTint="#3F51B5"
         android:fontFamily="monospace"
-        android:text="Nom:"
-        android:textSize="16sp"
+        android:text="Guardar els canvis"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.053"
+        app:layout_constraintHorizontal_bias="0.761"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.146" />
+        app:layout_constraintVertical_bias="0.38" />
 
-    <TextView
-        android:id="@+id/surname1_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <Button
+        android:id="@+id/esborrar_usuari_btn"
+        android:layout_width="388dp"
+        android:layout_height="38dp"
+        android:backgroundTint="#F44336"
         android:fontFamily="monospace"
-        android:text="Primer cognom:"
-        android:textSize="16sp"
+        android:text="Esborrar l'usuari"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.07"
+        app:layout_constraintHorizontal_bias="0.695"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.182" />
+        app:layout_constraintVertical_bias="0.509" />
+
+    <EditText
+        android:id="@+id/user_detail_surname1"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:background="#DDF0FF"
+        android:fontFamily="monospace"
+        android:paddingLeft="20px"
+        android:text="Primer Cognom"
+        android:textAlignment="viewStart"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.937"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.239" />
 
     <TextView
-        android:id="@+id/surname2_label"
+        android:id="@+id/surname2_label2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="monospace"
@@ -232,13 +115,13 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.07"
+        app:layout_constraintHorizontal_bias="0.069"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.22" />
+        app:layout_constraintVertical_bias="0.279" />
 
     <TextView
-        android:id="@+id/usertype_label"
+        android:id="@+id/usertype_label2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="monospace"
@@ -250,28 +133,55 @@
         app:layout_constraintHorizontal_bias="0.07"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.258" />
+        app:layout_constraintVertical_bias="0.317" />
 
     <TextView
-        android:id="@+id/user_detail_username"
-        android:layout_width="220dp"
-        android:layout_height="19dp"
-        android:background="#DDF0FF"
+        android:id="@+id/username_label2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:fontFamily="monospace"
-        android:paddingLeft="20px"
-        android:text="Alias"
-        android:textAlignment="viewStart"
-        android:textColor="#000000"
+        android:text="Nom d'usuari:"
         android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.937"
+        app:layout_constraintHorizontal_bias="0.069"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.109" />
+        app:layout_constraintVertical_bias="0.169" />
 
     <TextView
-        android:id="@+id/usertype"
+        android:id="@+id/id_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="monospace"
+        android:text="Id de l'usuari:"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.07"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.132" />
+
+    <TextView
+        android:id="@+id/realname_label2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="monospace"
+        android:text="Nom:"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.053"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.205" />
+
+    <EditText
+        android:id="@+id/user_detail_usertype"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
         android:background="#DDF0FF"
@@ -286,9 +196,47 @@
         app:layout_constraintHorizontal_bias="0.937"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.258" />
+        app:layout_constraintVertical_bias="0.317" />
 
-    <TextView
+    <EditText
+        android:id="@+id/user_detail_username"
+        android:layout_width="220dp"
+        android:layout_height="19dp"
+        android:layout_marginTop="2dp"
+        android:background="#DDF0FF"
+        android:fontFamily="monospace"
+        android:paddingLeft="20px"
+        android:text="Username"
+        android:textAlignment="viewStart"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.937"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.168" />
+
+    <EditText
+        android:id="@+id/user_detail_id"
+        android:layout_width="220dp"
+        android:layout_height="19dp"
+        android:layout_marginTop="2dp"
+        android:background="#DDF0FF"
+        android:fontFamily="monospace"
+        android:paddingLeft="20px"
+        android:text="Id"
+        android:textAlignment="viewStart"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.937"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.132" />
+
+    <EditText
         android:id="@+id/user_detail_surname2"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
@@ -304,34 +252,31 @@
         app:layout_constraintHorizontal_bias="0.937"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.22" />
+        app:layout_constraintVertical_bias="0.279" />
 
     <TextView
-        android:id="@+id/nom_lbl"
-        android:layout_width="220dp"
+        android:id="@+id/surname1_label2"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#DDF0FF"
         android:fontFamily="monospace"
-        android:paddingLeft="20px"
-        android:text="Primer Cognom"
-        android:textAlignment="viewStart"
-        android:textColor="#000000"
+        android:text="Primer cognom:"
         android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.937"
+        app:layout_constraintHorizontal_bias="0.068"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.181" />
+        app:layout_constraintVertical_bias="0.241" />
 
-    <TextView
+    <EditText
         android:id="@+id/user_detail_realname"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
         android:background="#DDF0FF"
         android:fontFamily="monospace"
         android:paddingLeft="20px"
-        android:text="usuari"
+        android:text="Nom"
         android:textAlignment="viewStart"
         android:textColor="#000000"
         android:textSize="16sp"
@@ -340,6 +285,6 @@
         app:layout_constraintHorizontal_bias="0.937"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.146" />
+        app:layout_constraintVertical_bias="0.205" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

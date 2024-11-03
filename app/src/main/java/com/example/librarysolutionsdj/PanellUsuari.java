@@ -63,14 +63,14 @@ public class PanellUsuari extends AppCompatActivity {
         });
 
         // Referències als TextView del perfil de l'usuari
-        userAliasTextView = findViewById(R.id.username);
-        usernameTextView = findViewById(R.id.realname);
-        surname1TextView = findViewById(R.id.surname1);
-        surname2TextView = findViewById(R.id.surname2);
+        userAliasTextView = findViewById(R.id.user_detail_username);
+        usernameTextView = findViewById(R.id.user_detail_realname);
+        surname1TextView = findViewById(R.id.nom_lbl);
+        surname2TextView = findViewById(R.id.user_detail_surname2);
         userTypeTextView = findViewById(R.id.usertype);
 
         // Referència al botó de gestió d'usuaris
-        gestioUsuarisButton = findViewById(R.id.gestio_usuaris);
+        gestioUsuarisButton = findViewById(R.id.gestio_usuaris_btn);
         gestioUsuarisButton.setVisibility(Button.GONE); // Ocultem el botó per defecte
 
         // Crida al mètode per obtenir el perfil de l'usuari
@@ -128,6 +128,11 @@ public class PanellUsuari extends AppCompatActivity {
                     runOnUiThread(() -> Toast.makeText(PanellUsuari.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                 }
             }).start();
+        });
+        // Obrir pantalla de gestió d'usuaris
+        gestioUsuarisButton.setOnClickListener(view -> {
+            Intent intent = new Intent(PanellUsuari.this, GestioUsuaris.class);
+            startActivity(intent);
         });
     }
 
