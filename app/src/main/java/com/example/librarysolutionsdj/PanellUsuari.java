@@ -34,7 +34,7 @@ public class PanellUsuari extends AppCompatActivity {
     /**
      * TextViews per mostrar la informació de l'usuari a la interfície.
      */
-    TextView userAliasTextView, usernameTextView, surname1TextView, surname2TextView, userTypeTextView;
+    TextView userIdTextView, userAliasTextView, usernameTextView, surname1TextView, surname2TextView, userTypeTextView;
 
     /**
      * Botó de gestió d'usuaris, visible només per a usuaris admin o treballadors.
@@ -63,6 +63,7 @@ public class PanellUsuari extends AppCompatActivity {
         });
 
         // Referències als TextView del perfil de l'usuari
+        userIdTextView = findViewById(R.id.user_detail_id);
         userAliasTextView = findViewById(R.id.user_detail_username);
         usernameTextView = findViewById(R.id.user_detail_realname);
         surname1TextView = findViewById(R.id.nom_lbl);
@@ -164,6 +165,7 @@ public class PanellUsuari extends AppCompatActivity {
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
                 // Llegir la resposta del servidor amb les dades de l'usuari
+                String userId = in.readLine();  // Añadir la lectura del ID
                 String userAlias = in.readLine();
                 String username = in.readLine();
                 String surname1 = in.readLine();
@@ -172,6 +174,7 @@ public class PanellUsuari extends AppCompatActivity {
 
                 // Mostrar les dades a la interfície d'usuari
                 runOnUiThread(() -> {
+                    userIdTextView.setText(userId);
                     userAliasTextView.setText(userAlias);
                     usernameTextView.setText(username);
                     surname1TextView.setText(surname1);

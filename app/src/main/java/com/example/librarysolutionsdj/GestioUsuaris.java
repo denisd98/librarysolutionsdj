@@ -1,14 +1,12 @@
 package com.example.librarysolutionsdj;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,8 +21,8 @@ import java.util.List;
 
 public class GestioUsuaris extends AppCompatActivity {
     private RecyclerView recyclerView;
-    private UserAdapter adapter;
-    private List<User> userList = new ArrayList<>();
+    private UserListAdapter adapter;
+    private List<UserList> userList = new ArrayList<>(); // Cambiado a UserList
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,13 +48,23 @@ public class GestioUsuaris extends AppCompatActivity {
     private void loadUsersFromServer() {
         new Thread(() -> {
             try {
+                // Obtener el sessionId de SharedPreferences
+                SharedPreferences preferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+                String sessionId = preferences.getString("SESSION_ID", null);
+
+                if (sessionId == null) {
+                    runOnUiThread(() -> Toast.makeText(GestioUsuaris.this, "No hi ha sessió activa", Toast.LENGTH_SHORT).show());
+                    return;
+                }
+
                 // Conexión al servidor
                 Socket socket = new Socket("10.0.2.2", 12345);
                 PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-                // Enviar el comando para obtener usuarios
-                out.println("GET_USERS");
+                // Enviar el comando para obtener el listado de usuarios con el sessionId
+                out.println("GET_USERS_LIST");
+                out.println(sessionId);
 
                 // Leer el número de usuarios
                 int userCount = Integer.parseInt(in.readLine());
@@ -65,21 +73,21 @@ public class GestioUsuaris extends AppCompatActivity {
                 for (int i = 0; i < userCount; i++) {
                     String id = in.readLine();
                     String username = in.readLine();
-                    String realname = in.readLine();
-                    // Crear un objeto User con los datos recibidos del servidor
-                    userList.add(new User(id, username, realname));
+
+                    // Crear un objeto UserList con los datos recibidos del servidor
+                    userList.add(new UserList(id, username));
                 }
 
                 // Actualizar el RecyclerView en la interfaz de usuario principal
                 runOnUiThread(() -> {
-                    adapter = new UserAdapter(userList);
+                    adapter = new UserListAdapter(userList);
                     recyclerView.setAdapter(adapter);
                 });
 
                 socket.close();
 
             } catch (Exception e) {
-                runOnUiThread(() -> Toast.makeText(GestioUsuaris.this, "Error al obtener usuarios: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(GestioUsuaris.this, "Error al obtenir usuaris: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
     }

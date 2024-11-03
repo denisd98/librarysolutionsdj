@@ -122,6 +122,15 @@ public class LoginActivity extends AppCompatActivity {
                             String sessionId = in.readLine().split(":")[1];
                             String userType = in.readLine().split(":")[1];
 
+                            // Verifica si sessionId y userType son correctos antes de almacenarlos
+                            if (sessionId != null && !sessionId.isEmpty() && userType != null && !userType.isEmpty()) {
+                                SharedPreferences preferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = preferences.edit();
+                                editor.putString("SESSION_ID", sessionId);
+                                editor.putString("USER_TYPE", userType);
+                                editor.apply();
+                            }
+
                             // Es guarden les dades de sessió a SharedPreferences
                             SharedPreferences preferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
                             SharedPreferences.Editor editor = preferences.edit();

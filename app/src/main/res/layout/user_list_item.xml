@@ -22,22 +22,6 @@
         app:layout_constraintTop_toBottomOf="@+id/user_detail_id" />
 
     <TextView
-        android:id="@+id/user_detail_realname"
-        android:layout_width="500px"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="156dp"
-        android:layout_marginTop="2dp"
-        android:background="#DDF0FF"
-        android:fontFamily="monospace"
-        android:paddingLeft="20px"
-        android:text="Nom"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/user_detail_username"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <TextView
         android:id="@+id/userid_lbl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -53,28 +37,13 @@
         app:layout_constraintVertical_bias="0.001" />
 
     <TextView
-        android:id="@+id/nom_lbl"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="2dp"
-        android:fontFamily="monospace"
-        android:paddingBottom="20px"
-        android:text="Nom real:"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/usuari_lbl"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <TextView
         android:id="@+id/usuari_lbl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="2dp"
         android:fontFamily="monospace"
+        android:paddingBottom="20px"
         android:text="Nom d'usuari: "
         android:textSize="16sp"
         android:textStyle="bold"
