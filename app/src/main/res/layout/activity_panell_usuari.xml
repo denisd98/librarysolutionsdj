@@ -195,24 +195,6 @@
         app:layout_constraintVertical_bias="0.168" />
 
     <TextView
-        android:id="@+id/user_detail_id"
-        android:layout_width="220dp"
-        android:layout_height="19dp"
-        android:background="#DDF0FF"
-        android:fontFamily="monospace"
-        android:paddingLeft="20px"
-        android:text="Id"
-        android:textAlignment="viewStart"
-        android:textColor="#000000"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.916"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.134" />
-
-    <TextView
         android:id="@+id/nom_lbl"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
@@ -359,21 +341,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.165" />
-
-    <TextView
-        android:id="@+id/id_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:fontFamily="monospace"
-        android:text="Id de l'usuari:"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.055"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.133" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

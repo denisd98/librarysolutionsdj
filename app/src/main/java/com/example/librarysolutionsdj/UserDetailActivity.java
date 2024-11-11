@@ -1,226 +1,159 @@
+// UserDetailActivity.java
 package com.example.librarysolutionsdj;
 
-import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import app.model.User;
+
 public class UserDetailActivity extends AppCompatActivity {
 
-    private EditText userIdTextView, usernameTextView, realnameTextView, surname1TextView, surname2TextView, userTypeTextView;
-    private Button editButton, saveButton, cancelButton;
-    private String userId;  // Variable para almacenar el ID del usuario seleccionado
-
-    // Variables para guardar los valores originales
-    private String originalUsername, originalRealname, originalSurname1, originalSurname2, originalUserType;
+    private EditText usernameEditText, realnameEditText, surname1EditText, surname2EditText;
+    private Spinner userTypeSpinner;
+    private Button saveButton, backButton, deleteButton;
+    private User selectedUser;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_detail);
 
-        // Configurar el botón "Back" para finalizar la actividad y regresar a la anterior
-        ImageButton backButton = findViewById(R.id.back);
-        backButton.setOnClickListener(view -> finish());
+        // Inicializar SessionManager
+        sessionManager = new SessionManager(this);
 
-        // Inicializar vistas
-        userIdTextView = findViewById(R.id.user_detail_id);
-        usernameTextView = findViewById(R.id.user_detail_username);
-        realnameTextView = findViewById(R.id.user_detail_realname);
-        surname1TextView = findViewById(R.id.user_detail_surname1);
-        surname2TextView = findViewById(R.id.user_detail_surname2);
-        userTypeTextView = findViewById(R.id.user_detail_usertype);
-        editButton = findViewById(R.id.edit_button);
+        // Recuperar el usuario seleccionado desde el Intent
+        selectedUser = (User) getIntent().getSerializableExtra("selectedUser");
+
+        // Inicializar los elementos de la interfaz
+        usernameEditText = findViewById(R.id.username_edit_text);
+        realnameEditText = findViewById(R.id.realname_edit_text);
+        surname1EditText = findViewById(R.id.surname1_edit_text);
+        surname2EditText = findViewById(R.id.surname2_edit_text);
+        userTypeSpinner = findViewById(R.id.user_type_spinner);
         saveButton = findViewById(R.id.save_button);
-        cancelButton = findViewById(R.id.cancel_button);
+        backButton = findViewById(R.id.back_button); // Botón de volver
+        deleteButton = findViewById(R.id.delete_button); // Botón de eliminar usuario
 
-        // Ocultar botones de guardar y cancelar al inicio
-        saveButton.setVisibility(Button.GONE);
-        cancelButton.setVisibility(Button.GONE);
+        // Rellenar los campos con los datos actuales del usuario
+        populateFields();
 
-        // Obtener el ID del usuario pasado por el Intent
-        userId = getIntent().getStringExtra("userId");
-
-        // Cargar el perfil del usuario desde el servidor
-        getUserProfile();
-
-        // Botón para habilitar la edición de campos
-        editButton.setOnClickListener(v -> enableEditing());
-
-        // Botón para guardar los cambios
+        // Configurar el botón de guardar
         saveButton.setOnClickListener(v -> saveChanges());
 
-        // Botón para cancelar los cambios
-        cancelButton.setOnClickListener(v -> cancelEditing());
+        // Configurar el botón de volver atrás
+        backButton.setOnClickListener(v -> finish());
+
+        // Configurar el botón de eliminar usuario
+        deleteButton.setOnClickListener(v -> deleteUser());
     }
 
-    private void getUserProfile() {
-        new Thread(() -> {
-            try {
-                if (userId == null) {
-                    runOnUiThread(() -> Toast.makeText(UserDetailActivity.this, "ID de usuario no válido", Toast.LENGTH_SHORT).show());
-                    return;
+    private void populateFields() {
+        if (selectedUser != null) {
+            usernameEditText.setText(selectedUser.getUsername());
+            realnameEditText.setText(selectedUser.getRealname());
+            surname1EditText.setText(selectedUser.getSurname1());
+            surname2EditText.setText(selectedUser.getSurname2());
+
+            // Selecciona el tipo de usuario en el Spinner
+            String userType = selectedUser.getTypeAsString();
+            String[] userTypes = getResources().getStringArray(R.array.user_types);
+            for (int i = 0; i < userTypes.length; i++) {
+                if (userTypes[i].equals(userType)) {
+                    userTypeSpinner.setSelection(i);
+                    break;
                 }
-
-                // Conexión al servidor para obtener el perfil del usuario seleccionado
-                Socket socket = new Socket("10.0.2.2", 12345); // IP de la máquina virtual Android Studio
-                PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-                // Enviar el comando "GET_USER_PROFILE" y el ID del usuario
-                out.println("GET_USER_PROFILE");
-                out.println(userId);
-
-                // Leer la respuesta del servidor con los datos del usuario
-                String receivedUserId = in.readLine();
-                String username = in.readLine();
-                String realname = in.readLine();
-                String surname1 = in.readLine();
-                String surname2 = in.readLine();
-                String userType = in.readLine();
-
-                // Guardar los valores originales
-                originalUsername = username;
-                originalRealname = realname;
-                originalSurname1 = surname1;
-                originalSurname2 = surname2;
-                originalUserType = userType;
-
-                // Mostrar los datos en la interfaz de usuario
-                runOnUiThread(() -> {
-                    userIdTextView.setText(receivedUserId);
-                    usernameTextView.setText(username);
-                    realnameTextView.setText(realname);
-                    surname1TextView.setText(surname1);
-                    surname2TextView.setText(surname2);
-                    userTypeTextView.setText(userType);
-                });
-
-                socket.close(); // Cerrar la conexión
-
-            } catch (Exception e) {
-                runOnUiThread(() -> Toast.makeText(UserDetailActivity.this, "Error al obtener el perfil: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
-        }).start();
-    }
-
-    private void enableEditing() {
-        // Habilitar los campos para edición (excepto el ID, que no se debe cambiar)
-        usernameTextView.setEnabled(true);
-        realnameTextView.setEnabled(true);
-        surname1TextView.setEnabled(true);
-        surname2TextView.setEnabled(true);
-        userTypeTextView.setEnabled(true);
-
-        // Cambiar el fondo de los campos a un color diferente para indicar que están en modo de edición
-        int backgroundColor = Color.parseColor("#FFFFE0"); // Color amarillo claro
-        usernameTextView.setBackgroundColor(backgroundColor);
-        realnameTextView.setBackgroundColor(backgroundColor);
-        surname1TextView.setBackgroundColor(backgroundColor);
-        surname2TextView.setBackgroundColor(backgroundColor);
-        userTypeTextView.setBackgroundColor(backgroundColor);
-
-        // Mostrar botones de guardar y cancelar y ocultar botón de editar
-        editButton.setVisibility(Button.GONE);
-        saveButton.setVisibility(Button.VISIBLE);
-        cancelButton.setVisibility(Button.VISIBLE);
+        }
     }
 
     private void saveChanges() {
+        // Actualizar el objeto usuario con los nuevos datos
+        selectedUser.setUsername(usernameEditText.getText().toString());
+        selectedUser.setRealname(realnameEditText.getText().toString());
+        selectedUser.setSurname1(surname1EditText.getText().toString());
+        selectedUser.setSurname2(surname2EditText.getText().toString());
+        selectedUser.setType(User.stringToUserType(userTypeSpinner.getSelectedItem().toString()));
+
+        // Enviar los datos actualizados al servidor
         new Thread(() -> {
             try {
-                // Obtener el sessionId y tipo de usuario de las preferencias
-                SharedPreferences preferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
-                String sessionId = preferences.getString("SESSION_ID", null);
-                String userType = preferences.getString("USER_TYPE", null);
+                // Única conexión al servidor
+                Socket socket = new Socket("10.0.2.2", 12345);
 
-                if (sessionId == null || userType == null || !userType.equals("ADMIN")) {
-                    runOnUiThread(() -> Toast.makeText(UserDetailActivity.this, "Acceso denegado: solo los administradores pueden guardar cambios", Toast.LENGTH_SHORT).show());
-                    return;
-                }
+                // Enviar el comando "MODIFY_USER" primero usando PrintWriter
+                PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true);
+                commandOut.println("MODIFY_USER");
 
-                // Conexión al servidor para enviar los cambios
-                Socket socket = new Socket("10.0.2.2", 12345); // IP de la máquina virtual Android Studio
-                PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                // Crear un ObjectOutputStream después de enviar el comando
+                ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
 
-                // Enviar el comando "UPDATE_USER_PROFILE" y el sessionId seguido de los datos modificados del usuario
-                out.println("UPDATE_USER_PROFILE");
-                out.println(sessionId);
-                out.println(userId);
-                out.println(usernameTextView.getText().toString().trim());
-                out.println(realnameTextView.getText().toString().trim());
-                out.println(surname1TextView.getText().toString().trim());
-                out.println(surname2TextView.getText().toString().trim());
-                out.println(userTypeTextView.getText().toString().trim());
+                // Enviar el ID del usuario y el objeto User
+                objectOut.writeInt(selectedUser.getId());
+                objectOut.writeObject(selectedUser);
+                objectOut.flush();
 
-                // Leer la respuesta del servidor
-                String response = in.readLine();
-                runOnUiThread(() -> {
-                    if ("UPDATE_SUCCESS".equals(response)) {
-                        Toast.makeText(UserDetailActivity.this, "Cambios guardados exitosamente", Toast.LENGTH_SHORT).show();
+                runOnUiThread(() -> Toast.makeText(UserDetailActivity.this, "Changes saved successfully", Toast.LENGTH_SHORT).show());
 
-                        // Actualizar los valores originales después de guardar
-                        originalUsername = usernameTextView.getText().toString().trim();
-                        originalRealname = realnameTextView.getText().toString().trim();
-                        originalSurname1 = surname1TextView.getText().toString().trim();
-                        originalSurname2 = surname2TextView.getText().toString().trim();
-                        originalUserType = userTypeTextView.getText().toString().trim();
-                    } else {
-                        Toast.makeText(UserDetailActivity.this, "Error al guardar los cambios: " + response, Toast.LENGTH_SHORT).show();
-                    }
-
-                    // Deshabilitar los campos nuevamente y mostrar botón de editar
-                    disableEditing();
-                });
-
-                socket.close(); // Cerrar la conexión
+                // Cerrar conexiones
+                commandOut.close();
+                objectOut.close();
+                socket.close();
 
             } catch (Exception e) {
-                runOnUiThread(() -> Toast.makeText(UserDetailActivity.this, "Error al guardar los cambios: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(UserDetailActivity.this, "Error saving changes: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
 
-    private void cancelEditing() {
-        // Restaurar los valores originales
-        usernameTextView.setText(originalUsername);
-        realnameTextView.setText(originalRealname);
-        surname1TextView.setText(originalSurname1);
-        surname2TextView.setText(originalSurname2);
-        userTypeTextView.setText(originalUserType);
+    private void deleteUser() {
+        int currentUserId = sessionManager.getUserId();
 
-        // Deshabilitar los campos y mostrar el botón de editar
-        disableEditing();
-    }
+        if (selectedUser.getId() == currentUserId) {
+            Toast.makeText(this, "Cannot delete the current logged-in user.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-    private void disableEditing() {
-        usernameTextView.setEnabled(false);
-        realnameTextView.setEnabled(false);
-        surname1TextView.setEnabled(false);
-        surname2TextView.setEnabled(false);
-        userTypeTextView.setEnabled(false);
+        // Enviar solicitud de eliminación al servidor
+        new Thread(() -> {
+            try {
+                Socket socket = new Socket("10.0.2.2", 12345);
 
-        // Restaurar el fondo de los campos a su color original
-        int originalBackgroundColor = Color.TRANSPARENT; // Fondo transparente o color original
-        usernameTextView.setBackgroundColor(originalBackgroundColor);
-        realnameTextView.setBackgroundColor(originalBackgroundColor);
-        surname1TextView.setBackgroundColor(originalBackgroundColor);
-        surname2TextView.setBackgroundColor(originalBackgroundColor);
-        userTypeTextView.setBackgroundColor(originalBackgroundColor);
+                // Enviar el comando "DELETE_USER" primero usando PrintWriter
+                PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true);
+                commandOut.println("DELETE_USER");
 
-        // Ocultar botones de guardar y cancelar y mostrar botón de editar
-        saveButton.setVisibility(Button.GONE);
-        cancelButton.setVisibility(Button.GONE);
-        editButton.setVisibility(Button.VISIBLE);
+                // Crear un ObjectOutputStream después de enviar el comando
+                ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
+
+                // Enviar solo el ID del usuario a eliminar
+                objectOut.writeInt(selectedUser.getId());
+                objectOut.flush();
+
+                runOnUiThread(() -> {
+                    Toast.makeText(UserDetailActivity.this, "User deleted successfully", Toast.LENGTH_SHORT).show();
+                    finish(); // Cierra la actividad después de la eliminación
+                });
+
+                // Cerrar conexiones
+                commandOut.close();
+                objectOut.close();
+                socket.close();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(UserDetailActivity.this, "Error deleting user: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        }).start();
     }
 }

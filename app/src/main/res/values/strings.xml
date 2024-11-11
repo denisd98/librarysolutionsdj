@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Library Solution SDJ</string>
-
+    <string-array name="user_types">
+        <item>USER</item>
+        <item>ADMIN</item>
+        <item>WORKER</item>
+    </string-array>
 </resources>
