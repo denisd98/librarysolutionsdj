@@ -4,6 +4,7 @@ package com.example.librarysolutionsdj;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -19,7 +20,8 @@ public class UserDetailActivity extends AppCompatActivity {
 
     private EditText usernameEditText, realnameEditText, surname1EditText, surname2EditText;
     private Spinner userTypeSpinner;
-    private Button saveButton, backButton, deleteButton;
+    private Button saveButton, deleteButton;
+    private ImageButton backButton;
     private User selectedUser;
     private SessionManager sessionManager;
 

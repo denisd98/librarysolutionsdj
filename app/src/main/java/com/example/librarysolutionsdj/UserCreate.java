@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ public class UserCreate extends AppCompatActivity {
     private EditText usernameEditText, passwordEditText, realnameEditText, surname1EditText, surname2EditText;
     private Spinner userTypeSpinner;
     private Button createButton;
+    private ImageButton backButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +38,7 @@ public class UserCreate extends AppCompatActivity {
         surname2EditText = findViewById(R.id.surname2_edit_text);
         userTypeSpinner = findViewById(R.id.user_type_spinner);
         createButton = findViewById(R.id.create_button);
+        backButton = findViewById(R.id.back_button); // Botón de volver
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this,
@@ -46,10 +49,12 @@ public class UserCreate extends AppCompatActivity {
         userTypeSpinner.setAdapter(adapter);
 
         createButton.setOnClickListener(v -> createUser());
+
+        // Configurar el botón de volver atrás
+        backButton.setOnClickListener(v -> finish());
     }
 
     private void createUser() {
-        // Recoger datos del formulario
         String username = usernameEditText.getText().toString();
         String password = passwordEditText.getText().toString();
         String realname = realnameEditText.getText().toString();
@@ -72,15 +77,18 @@ public class UserCreate extends AppCompatActivity {
 
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String response = in.readLine();
-                if ("USER_CREATED".equals(response)) {
-                    int generatedId = Integer.parseInt(in.readLine());
-                    newUser.setId(generatedId); // Actualiza el ID en el objeto User
 
-                    // Notificación de creación exitosa
+                if ("USER_CREATED".equals(response)) {
                     runOnUiThread(() -> {
                         Toast.makeText(UserCreate.this, "User created successfully", Toast.LENGTH_SHORT).show();
-                        finish(); // Cierra la actividad de creación
+                        finish();
                     });
+                } else if (response != null && (response.contains("unique") || response.contains("duplicate"))) {
+                    // Mensaje específico si el username ya existe
+                    runOnUiThread(() -> Toast.makeText(UserCreate.this, "Username already exists!", Toast.LENGTH_LONG).show());
+                } else {
+                    // Otros errores generales
+                    runOnUiThread(() -> Toast.makeText(UserCreate.this, "Error creating user: " + response, Toast.LENGTH_SHORT).show());
                 }
 
                 commandOut.close();
@@ -94,5 +102,6 @@ public class UserCreate extends AppCompatActivity {
             }
         }).start();
     }
+
 
 }

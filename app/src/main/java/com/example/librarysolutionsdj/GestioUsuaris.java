@@ -3,6 +3,7 @@ package com.example.librarysolutionsdj;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -28,7 +29,7 @@ public class GestioUsuaris extends AppCompatActivity {
     private ArrayList<User> userList;
     private SessionManager sessionManager;
     private UserService userService;
-    private Button backButton; // Declaración del botón de volver
+    private ImageButton backButton; // Declaración del botón de volver
     private FloatingActionButton addUserButton; // Botón flotante para añadir usuario
 
     /**
