@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -55,12 +54,19 @@ public class UserCreate extends AppCompatActivity {
     }
 
     private void createUser() {
-        String username = usernameEditText.getText().toString();
-        String password = passwordEditText.getText().toString();
-        String realname = realnameEditText.getText().toString();
-        String surname1 = surname1EditText.getText().toString();
-        String surname2 = surname2EditText.getText().toString();
+        // Recoger datos del formulario
+        String username = usernameEditText.getText().toString().trim();
+        String password = passwordEditText.getText().toString().trim();
+        String realname = realnameEditText.getText().toString().trim();
+        String surname1 = surname1EditText.getText().toString().trim();
+        String surname2 = surname2EditText.getText().toString().trim();
         String userType = userTypeSpinner.getSelectedItem().toString();
+
+        // Validación de campos requeridos
+        if (username.isEmpty() || password.isEmpty() || realname.isEmpty() || surname1.isEmpty()) {
+            Toast.makeText(this, "Si us plau, omple tots els camps requerits.", Toast.LENGTH_LONG).show();
+            return; // Detener el proceso si algún campo obligatorio está vacío
+        }
 
         User newUser = new User(0, username, password, realname, surname1, surname2, User.stringToUserType(userType));
 
@@ -102,6 +108,4 @@ public class UserCreate extends AppCompatActivity {
             }
         }).start();
     }
-
-
 }

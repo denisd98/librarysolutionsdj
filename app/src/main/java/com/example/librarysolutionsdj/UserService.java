@@ -51,32 +51,39 @@ public class UserService {
      * @param sessionId Identificador de sessió de l'usuari
      * @param callback  Callback per processar el resultat de l'operació
      */
+
     public void getUserProfile(String sessionId, UserProfileCallback callback) {
         new Thread(() -> {
             try (Socket socket = new Socket(serverHost, serverPort);
                  PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
                  BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-                // Envia la comanda per obtenir el perfil
+                // Solicita el perfil del usuario
                 out.println("GET_PROFILE");
                 out.println(sessionId);
 
-                // Llegeix la resposta amb la informació del perfil d'usuari
+                // Lee la respuesta del servidor
                 String userAlias = in.readLine();
                 String username = in.readLine();
                 String surname1 = in.readLine();
                 String surname2 = in.readLine();
                 String userType = in.readLine();
+                String password = in.readLine(); // Si se incluye la contraseña en la respuesta
 
-                // Crea l'objecte UserProfile amb les dades rebudes
-                UserProfile profile = new UserProfile(userAlias, username, surname1, surname2, userType);
-                callback.onSuccess(profile);
+                if (userAlias != null && username != null) {
+                    UserProfile profile = new UserProfile(userAlias, username, surname1, surname2, userType, password);
+                    callback.onSuccess(profile);
+                } else {
+                    callback.onError("Perfil no encontrado.");
+                }
 
             } catch (Exception e) {
-                callback.onError("Error en obtenir el perfil: " + e.getMessage());
+                callback.onError("Error obteniendo el perfil: " + e.getMessage());
             }
         }).start();
     }
+
+
 
     /**
      * Executa el logout de l'usuari enviant el sessionId al servidor.

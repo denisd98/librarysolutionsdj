@@ -12,12 +12,15 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import app.model.User;
+
 /**
  * Classe PanellUsuari és una Activity que mostra el panell d'usuari.
  * Gestiona la sessió, visualitza el perfil de l'usuari i permet la desconnexió.
  */
 public class PanellUsuari extends AppCompatActivity {
 
+    private static final int REQUEST_CODE_EDIT_PROFILE = 1;  // Código para identificar el resultado de editar perfil
     private SessionManager sessionManager;
     private UserService userService;
 
@@ -68,6 +71,12 @@ public class PanellUsuari extends AppCompatActivity {
         configureUI();
     }
 
+    @Override
+    protected void onResume(){
+        super.onResume();
+        loadUserProfile();
+    }
+
     /**
      * Configura la interfície d'usuari, incloent la configuració del botó de logout i el de gestió d'usuaris.
      */
@@ -77,6 +86,14 @@ public class PanellUsuari extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        Button editarPerfilButton = findViewById(R.id.editar_perfil);
+        editarPerfilButton.setOnClickListener(view -> {
+            Intent intent = new Intent(PanellUsuari.this, UserDetailActivity.class);
+            intent.putExtra("isOwnProfile", true);  // Indica que se trata del perfil propio
+            intent.putExtra("userId", sessionManager.getUserId()); // Envía el userId del usuario autenticado
+            startActivityForResult(intent, REQUEST_CODE_EDIT_PROFILE); // Usar startActivityForResult para recibir el resultado
         });
 
         // Inicialització dels elements de la UI
@@ -118,18 +135,22 @@ public class PanellUsuari extends AppCompatActivity {
             return;
         }
 
+        // Solicita el perfil del usuario al servidor
         userService.getUserProfile(sessionId, new UserService.UserProfileCallback() {
             @Override
             public void onSuccess(UserProfile profile) {
+                // Actualiza la interfaz de usuario con los datos recibidos
                 runOnUiThread(() -> updateUIWithProfile(profile));
             }
 
             @Override
             public void onError(String errorMessage) {
+                // Manejo de errores
                 runOnUiThread(() -> showError(errorMessage));
             }
         });
     }
+
 
     /**
      * Actualitza la UI amb la informació del perfil de l'usuari.
@@ -137,15 +158,34 @@ public class PanellUsuari extends AppCompatActivity {
      * @param profile objecte UserProfile amb la informació de l'usuari
      */
     private void updateUIWithProfile(UserProfile profile) {
-        ((TextView) findViewById(R.id.user_detail_username)).setText(profile.getAlias());
-        ((TextView) findViewById(R.id.user_detail_realname)).setText(profile.getUsername());
-        ((TextView) findViewById(R.id.nom_lbl)).setText(profile.getSurname1());
-        ((TextView) findViewById(R.id.user_detail_surname2)).setText(profile.getSurname2());
-        ((TextView) findViewById(R.id.usertype)).setText(profile.getUserType());
+        TextView usernameTextView = findViewById(R.id.user_detail_username);
+        TextView realNameTextView = findViewById(R.id.user_detail_realname);
+        TextView surname1TextView = findViewById(R.id.nom_lbl);
+        TextView surname2TextView = findViewById(R.id.user_detail_surname2);
+        TextView userTypeTextView = findViewById(R.id.usertype);
 
+        // Actualiza los campos de texto con los datos del perfil
+        usernameTextView.setText(profile.getAlias());
+        realNameTextView.setText(profile.getUsername());
+        surname1TextView.setText(profile.getSurname1());
+        surname2TextView.setText(profile.getSurname2());
+        userTypeTextView.setText(profile.getUserType());
+
+        // Verifica si el usuario tiene permisos de ADMIN o WORKER y muestra el botón de gestión
         Button gestioUsuarisButton = findViewById(R.id.gestio_usuaris_btn);
         if ("ADMIN".equals(profile.getUserType()) || "WORKER".equals(profile.getUserType())) {
             gestioUsuarisButton.setVisibility(Button.VISIBLE);
+        } else {
+            gestioUsuarisButton.setVisibility(Button.GONE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_EDIT_PROFILE && resultCode == RESULT_OK) {
+            // Ignorar los datos locales y forzar la recarga desde el servidor
+            loadUserProfile();
         }
     }
 

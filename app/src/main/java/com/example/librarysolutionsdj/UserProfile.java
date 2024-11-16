@@ -11,7 +11,7 @@ public class UserProfile {
     private String surname1;    // Primer cognom de l'usuari
     private String surname2;    // Segon cognom de l'usuari (opcional)
     private String userType;    // Tipus d'usuari, com ara "ADMIN" o "USER"
-
+    private String password; // Agregar campo de contraseña
     /**
      * Constructor que inicialitza els camps del perfil d'usuari.
      *
@@ -27,6 +27,21 @@ public class UserProfile {
         this.surname1 = surname1;
         this.surname2 = surname2;
         this.userType = userType;
+    }
+
+    // Constructor actualizado para incluir la contraseña
+    public UserProfile(String alias, String username, String surname1, String surname2, String userType, String password) {
+        this.alias = alias;
+        this.username = username;
+        this.surname1 = surname1;
+        this.surname2 = surname2;
+        this.userType = userType;
+        this.password = password;
+    }
+
+    // Nuevo getter para obtener la contraseña
+    public String getPassword() {
+        return password;
     }
 
     /**
