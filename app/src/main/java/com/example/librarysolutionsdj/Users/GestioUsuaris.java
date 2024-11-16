@@ -6,6 +6,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
@@ -43,6 +44,7 @@ public class GestioUsuaris extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gestio_usuaris);
+        EdgeToEdge.enable(this);
 
         userListView = findViewById(R.id.user_list_view);
         userList = new ArrayList<>();

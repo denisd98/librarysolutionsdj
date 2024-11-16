@@ -15,6 +15,13 @@
         android:theme="@style/Theme.LibrarySolutionSDJ"
         tools:targetApi="31">
         <activity
+            android:name=".Authors.GestioAutors"
+            android:exported="false" />
+        <activity
+            android:name=".Authors.GestioObres"
+            android:exported="false"
+            android:theme="@style/Theme.LibrarySolutionSDJ" />
+        <activity
             android:name=".Users.UserCreate"
             android:exported="false" />
         <activity

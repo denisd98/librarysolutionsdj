@@ -12,6 +12,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.librarysolutionsdj.Authors.GestioAutors;
+import com.example.librarysolutionsdj.Authors.GestioObres;
 import com.example.librarysolutionsdj.Login.LoginActivity;
 import com.example.librarysolutionsdj.R;
 import com.example.librarysolutionsdj.SessionManager.SessionManager;
@@ -74,13 +76,13 @@ public class PanellUsuari extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
         loadUserProfile();
     }
 
     /**
-     * Configura la interfície d'usuari, incloent la configuració del botó de logout i el de gestió d'usuaris.
+     * Configura la interfície d'usuari, incloent la configuració dels botons i la seva visibilitat.
      */
     private void configureUI() {
         // Configuració dels marges per als sistemes de barres
@@ -98,33 +100,34 @@ public class PanellUsuari extends AppCompatActivity {
             startActivityForResult(intent, REQUEST_CODE_EDIT_PROFILE); // Usar startActivityForResult para recibir el resultado
         });
 
-        // Inicialització dels elements de la UI
+        // Inicialització dels botons
         Button gestioUsuarisButton = findViewById(R.id.gestio_usuaris_btn);
+        Button gestioObresButton = findViewById(R.id.gestio_obres_btn);
+        Button gestioAutorsButton = findViewById(R.id.gestio_autors_btn);
+
         gestioUsuarisButton.setVisibility(Button.GONE);
+        gestioObresButton.setVisibility(Button.GONE);
+        gestioAutorsButton.setVisibility(Button.GONE);
 
-        // Carrega el perfil de l'usuari
-        loadUserProfile();
-
-        // Configuració del botó de logout
-        Button logoutButton = findViewById(R.id.logout_btn);
-        logoutButton.setOnClickListener(view -> performLogout());
-
-        // Acció del botó de "Gestió d'usuaris" si està visible
+        // Configura accions per als botons
         gestioUsuarisButton.setOnClickListener(view -> {
             Intent intent = new Intent(PanellUsuari.this, GestioUsuaris.class);
             startActivity(intent);
         });
-    }
 
-    /**
-     * Mètode per injectar dependències, útil per a proves.
-     *
-     * @param sessionManager el gestor de sessió a injectar
-     * @param userService el servei d'usuari a injectar
-     */
-    public void injectDependencies(SessionManager sessionManager, UserService userService) {
-        this.sessionManager = sessionManager;
-        this.userService = userService;
+        gestioObresButton.setOnClickListener(view -> {
+            Intent intent = new Intent(PanellUsuari.this, GestioObres.class);
+            startActivity(intent);
+        });
+
+        gestioAutorsButton.setOnClickListener(view -> {
+            Intent intent = new Intent(PanellUsuari.this, GestioAutors.class);
+            startActivity(intent);
+        });
+
+        // Configuració del botó de logout
+        Button logoutButton = findViewById(R.id.logout_btn);
+        logoutButton.setOnClickListener(view -> performLogout());
     }
 
     /**
@@ -153,7 +156,6 @@ public class PanellUsuari extends AppCompatActivity {
         });
     }
 
-
     /**
      * Actualitza la UI amb la informació del perfil de l'usuari.
      *
@@ -173,12 +175,21 @@ public class PanellUsuari extends AppCompatActivity {
         surname2TextView.setText(profile.getSurname2());
         userTypeTextView.setText(profile.getUserType());
 
-        // Verifica si el usuario tiene permisos de ADMIN o WORKER y muestra el botón de gestión
+        // Configura la visibilitat dels botons segons el tipus d'usuari
         Button gestioUsuarisButton = findViewById(R.id.gestio_usuaris_btn);
-        if ("ADMIN".equals(profile.getUserType()) || "WORKER".equals(profile.getUserType())) {
+        Button gestioObresButton = findViewById(R.id.gestio_obres_btn);
+        Button gestioAutorsButton = findViewById(R.id.gestio_autors_btn);
+
+        String userType = profile.getUserType();
+        if ("ADMIN".equals(userType)) {
             gestioUsuarisButton.setVisibility(Button.VISIBLE);
+        } else if ("WORKER".equals(userType)) {
+            gestioObresButton.setVisibility(Button.VISIBLE);
+            gestioAutorsButton.setVisibility(Button.VISIBLE);
         } else {
             gestioUsuarisButton.setVisibility(Button.GONE);
+            gestioObresButton.setVisibility(Button.GONE);
+            gestioAutorsButton.setVisibility(Button.GONE);
         }
     }
 
