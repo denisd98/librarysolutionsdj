@@ -20,6 +20,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 
+import com.example.librarysolutionsdj.Users.PanellUsuari;
+
 /**
  * Classe de prova per verificar el comportament de la funcionalitat de logout de l'activitat PanellUsuari.
  * Comprova que en fer logout, es redirigeix a LoginActivity.

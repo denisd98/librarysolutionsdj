@@ -1,5 +1,5 @@
 // UserDetailActivity.java
-package com.example.librarysolutionsdj;
+package com.example.librarysolutionsdj.Users;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +11,9 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.librarysolutionsdj.R;
+import com.example.librarysolutionsdj.SessionManager.SessionManager;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

@@ -1,4 +1,4 @@
-package com.example.librarysolutionsdj;
+package com.example.librarysolutionsdj.SessionManager;
 
 import android.content.Context;
 import android.content.SharedPreferences;

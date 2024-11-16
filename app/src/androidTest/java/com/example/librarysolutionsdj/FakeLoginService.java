@@ -1,5 +1,7 @@
 package com.example.librarysolutionsdj;
 
+import com.example.librarysolutionsdj.Login.LoginService;
+
 /**
  * Classe simulada de LoginService per a proves. Permet simular el resultat de l'intent de login (èxit o error)
  * sense necessitat de connectar-se a un servidor real.

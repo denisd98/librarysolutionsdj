@@ -11,6 +11,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.librarysolutionsdj.Login.LoginActivity;
+
 /**
  * Classe que representa la pantalla principal de l'aplicació.
  * Dona la benvinguda als usuaris i els permet iniciar sessió o registrar-se (registre encara no implementat).

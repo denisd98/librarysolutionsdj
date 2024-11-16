@@ -22,6 +22,9 @@ import static org.hamcrest.Matchers.containsString;
 
 import android.content.Context;
 
+import com.example.librarysolutionsdj.Login.LoginActivity;
+import com.example.librarysolutionsdj.Users.PanellUsuari;
+
 /**
  * Classe de test per a LoginActivity, amb proves per verificar els casos d'èxit i error en el login,
  * així com el funcionament del botó de tornada.

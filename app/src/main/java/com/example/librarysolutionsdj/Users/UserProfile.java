@@ -1,4 +1,4 @@
-package com.example.librarysolutionsdj;
+package com.example.librarysolutionsdj.Users;
 
 /**
  * Classe que representa el perfil complet d'un usuari amb informació rellevant com l'àlies, nom d'usuari,

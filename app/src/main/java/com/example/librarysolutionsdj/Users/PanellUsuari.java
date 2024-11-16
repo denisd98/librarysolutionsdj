@@ -1,4 +1,4 @@
-package com.example.librarysolutionsdj;
+package com.example.librarysolutionsdj.Users;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +12,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import app.model.User;
+import com.example.librarysolutionsdj.Login.LoginActivity;
+import com.example.librarysolutionsdj.R;
+import com.example.librarysolutionsdj.SessionManager.SessionManager;
 
 /**
  * Classe PanellUsuari és una Activity que mostra el panell d'usuari.

@@ -1,4 +1,4 @@
-package com.example.librarysolutionsdj;
+package com.example.librarysolutionsdj.Users;
 
 /**
  * Classe FakeUserService per a proves. Simula el servei de l'usuari retornant perfils d'usuari simulats i

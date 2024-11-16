@@ -3,6 +3,8 @@ package com.example.librarysolutionsdj;
 import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 
+import com.example.librarysolutionsdj.SessionManager.SessionManager;
+
 /**
  * Classe utilitària per a proves, que proporciona mètodes auxiliars per gestionar i simular la sessió d'usuari.
  */

@@ -1,4 +1,4 @@
-package com.example.librarysolutionsdj;
+package com.example.librarysolutionsdj.Users;
 
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -9,6 +9,8 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.librarysolutionsdj.R;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

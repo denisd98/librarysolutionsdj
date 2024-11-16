@@ -1,4 +1,4 @@
-package com.example.librarysolutionsdj;
+package com.example.librarysolutionsdj.Login;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +13,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.example.librarysolutionsdj.MainActivity;
+import com.example.librarysolutionsdj.R;
+import com.example.librarysolutionsdj.SessionManager.SessionManager;
+import com.example.librarysolutionsdj.Users.PanellUsuari;
 
 /**
  * LoginActivity gestiona la pantalla d'inici de sessió de l'aplicació.

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:hapticFeedbackEnabled="false"
     android:background="@color/white"
-    tools:context=".PanellUsuari">
+    tools:context=".Users.PanellUsuari">
 
     <Button
         android:id="@+id/accedir_biblioteca"
