@@ -34,7 +34,7 @@ android {
 }
 
 dependencies {
-    implementation(files("libs/Model.jar"))
+    implementation(files("libs/Full_Model.jar"))
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -48,6 +48,7 @@ dependencies {
     testImplementation(libs.espresso.intents)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation("androidx.tracing:tracing:1.1.0")
 
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
