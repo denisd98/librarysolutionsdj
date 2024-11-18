@@ -13,8 +13,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.librarysolutionsdj.Authors.GestioAutors;
-import com.example.librarysolutionsdj.Authors.GestioObres;
 import com.example.librarysolutionsdj.Login.LoginActivity;
+import com.example.librarysolutionsdj.Media.GestioMedia;
 import com.example.librarysolutionsdj.R;
 import com.example.librarysolutionsdj.SessionManager.SessionManager;
 
@@ -116,7 +116,7 @@ public class PanellUsuari extends AppCompatActivity {
         });
 
         gestioObresButton.setOnClickListener(view -> {
-            Intent intent = new Intent(PanellUsuari.this, GestioObres.class);
+            Intent intent = new Intent(PanellUsuari.this, GestioMedia.class);
             startActivity(intent);
         });
 
