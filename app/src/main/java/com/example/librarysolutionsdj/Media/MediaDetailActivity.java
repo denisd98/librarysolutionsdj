@@ -11,7 +11,6 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
@@ -38,16 +37,12 @@ public class MediaDetailActivity extends AppCompatActivity {
     private Media selectedMedia;
     private ArrayAdapter<String> authorsAdapter;
 
-    private static final int SELECT_AUTHORS_REQUEST_CODE = 1;
+    private static final String TAG = "MediaDetailActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_detail);
-        EdgeToEdge.enable(this);
-
-        // Recibir el objeto Media desde el Intent
-        selectedMedia = (Media) getIntent().getSerializableExtra("selectedMedia");
 
         // Inicialización de los campos
         titleEditText = findViewById(R.id.title_edit_text);
@@ -58,52 +53,64 @@ public class MediaDetailActivity extends AppCompatActivity {
         saveButton = findViewById(R.id.save_button);
         deleteButton = findViewById(R.id.delete_button);
         backButton = findViewById(R.id.back_button);
-        Button selectAuthorButton = findViewById(R.id.select_author_button);
 
         // Configurar Spinner de MediaType
         ArrayAdapter<MediaType> mediaTypeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, MediaType.values());
-        mediaTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mediaTypeSpinner.setAdapter(mediaTypeAdapter);
 
         // Configurar ListView de Autores
         authorsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
         authorsListView.setAdapter(authorsAdapter);
 
-        // Si se recibió un Media, rellenar los campos; si no, cargar desde el servidor
+        // Recibir el objeto Media desde el Intent
+        selectedMedia = (Media) getIntent().getSerializableExtra("selectedMedia");
+
         if (selectedMedia != null) {
             populateFieldsWithSelectedMedia();
         } else {
-            int mediaId = getIntent().getIntExtra("mediaId", -1);
-            if (mediaId != -1) {
-                loadMediaDetails(mediaId);
-            }
+            Toast.makeText(this, "Media ID no válido o no encontrado", Toast.LENGTH_SHORT).show();
+            finish();
         }
 
+        // Configurar botones
         saveButton.setOnClickListener(v -> saveChanges());
         deleteButton.setOnClickListener(v -> deleteMedia());
         backButton.setOnClickListener(v -> finish());
-        selectAuthorButton.setOnClickListener(v -> openAuthorSelection());
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    private void loadMediaDetails(int mediaId) {
+        new Thread(() -> {
+            try (Socket socket = new Socket("10.0.2.2", 12345);
+                 PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true);
+                 ObjectInputStream objectIn = new ObjectInputStream(socket.getInputStream())) {
 
-        if (requestCode == SELECT_AUTHORS_REQUEST_CODE && resultCode == RESULT_OK) {
-            ArrayList<String> selectedAuthorNames = data.getStringArrayListExtra("selectedAuthors");
-            if (selectedAuthorNames != null) {
-                authorsAdapter.clear();
-                authorsAdapter.addAll(selectedAuthorNames); // Añade directamente los nombres
-                authorsAdapter.notifyDataSetChanged();
+                // Enviar el comando al servidor
+                commandOut.println("GET_MEDIA_BY_ID");
+                commandOut.println(mediaId);
+                commandOut.flush();
+
+                // Recibir el objeto Media desde el servidor
+                Media media = (Media) objectIn.readObject();
+
+                if (media != null) {
+                    Log.d(TAG, "Media recibido: " + media.getTitle());
+                    Log.d(TAG, "Autores recibidos: " + media.getAuthors());
+                    runOnUiThread(() -> {
+                        selectedMedia = media;
+                        populateFieldsWithSelectedMedia();
+                    });
+                } else {
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "No se encontró el Media", Toast.LENGTH_SHORT).show();
+                        finish();
+                    });
+                }
+
+            } catch (Exception e) {
+                Log.e(TAG, "Error al cargar detalles del Media", e);
+                runOnUiThread(() -> Toast.makeText(this, "Error al cargar Media: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
-        }
-    }
-
-
-
-    private void openAuthorSelection() {
-        Intent intent = new Intent(this, AuthorSelectionActivity.class);
-        startActivityForResult(intent, SELECT_AUTHORS_REQUEST_CODE);
+        }).start();
     }
 
     private void populateFieldsWithSelectedMedia() {
@@ -113,72 +120,36 @@ public class MediaDetailActivity extends AppCompatActivity {
             descriptionEditText.setText(selectedMedia.getMedia_description());
             mediaTypeSpinner.setSelection(selectedMedia.getMediaType().ordinal());
 
-            // Manejar lista de autores nula o vacía
+            // Procesar y mostrar autores
             authorsAdapter.clear();
             if (selectedMedia.getAuthors() != null && !selectedMedia.getAuthors().isEmpty()) {
                 for (Author author : selectedMedia.getAuthors()) {
-                    authorsAdapter.add(String.valueOf(author));
+                    authorsAdapter.add(author.getAuthorname() + " " + author.getSurname1());
                 }
             } else {
-                Toast.makeText(this, "No hay autores asociados", Toast.LENGTH_SHORT).show();
+                authorsAdapter.add("No hay autores asignados");
             }
             authorsAdapter.notifyDataSetChanged();
         }
     }
 
-
-    private void loadMediaDetails(int mediaId) {
-        new Thread(() -> {
-            try (Socket socket = new Socket("10.0.2.2", 12345);
-                 PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true);
-                 ObjectInputStream objectIn = new ObjectInputStream(socket.getInputStream())) {
-
-                commandOut.println("GET_MEDIA_BY_ID");
-                commandOut.println(mediaId);
-                commandOut.flush();
-
-                Media media = (Media) objectIn.readObject();
-
-                if (media != null) {
-                    runOnUiThread(() -> {
-                        selectedMedia = media;
-                        Log.d("MediaDetailActivity", "Autores cargados: " + selectedMedia.getAuthors());
-                        populateFieldsWithSelectedMedia();
-                    });
-                } else {
-                    runOnUiThread(() -> {
-                        Toast.makeText(this, "Media not found", Toast.LENGTH_SHORT).show();
-                        finish();
-                    });
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(this, "Error loading media: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-            }
-        }).start();
-    }
-
-
     private void saveChanges() {
         if (titleEditText.getText().toString().isEmpty()) {
-            Toast.makeText(this, "El títol és obligatori", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "El título es obligatorio", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        int yearPublication;
         try {
-            yearPublication = Integer.parseInt(yearPublicationEditText.getText().toString());
+            int year = Integer.parseInt(yearPublicationEditText.getText().toString());
+            selectedMedia.setYearPublication(year);
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "L'any de publicació ha de ser un número", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "El año debe ser un número válido", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Actualizar el objeto Media
         selectedMedia.setTitle(titleEditText.getText().toString());
-        selectedMedia.setYearPublication(yearPublication);
-        selectedMedia.setMediaType((MediaType) mediaTypeSpinner.getSelectedItem());
         selectedMedia.setMedia_description(descriptionEditText.getText().toString());
+        selectedMedia.setMediaType((MediaType) mediaTypeSpinner.getSelectedItem());
 
         new Thread(() -> {
             try (Socket socket = new Socket("10.0.2.2", 12345);
@@ -188,7 +159,6 @@ public class MediaDetailActivity extends AppCompatActivity {
                 commandOut.flush();
 
                 ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-                objectOut.writeInt(selectedMedia.getWorkId());
                 objectOut.writeObject(selectedMedia);
                 objectOut.flush();
 
@@ -196,20 +166,14 @@ public class MediaDetailActivity extends AppCompatActivity {
                 String response = responseReader.readLine();
 
                 if ("MODIFY_MEDIA_OK".equals(response)) {
-                    runOnUiThread(() -> {
-                        Toast.makeText(MediaDetailActivity.this, "Changes saved successfully", Toast.LENGTH_SHORT).show();
-                        Intent resultIntent = new Intent();
-                        resultIntent.putExtra("updatedMedia", selectedMedia);
-                        setResult(RESULT_OK, resultIntent);
-                        finish();
-                    });
+                    runOnUiThread(() -> Toast.makeText(this, "Cambios guardados correctamente", Toast.LENGTH_SHORT).show());
                 } else {
-                    runOnUiThread(() -> Toast.makeText(MediaDetailActivity.this, "Error saving changes", Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> Toast.makeText(this, "Error al guardar cambios", Toast.LENGTH_SHORT).show());
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(MediaDetailActivity.this, "Error saving changes: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                Log.e(TAG, "Error al guardar cambios", e);
+                runOnUiThread(() -> Toast.makeText(this, "Error al guardar cambios: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
@@ -220,17 +184,20 @@ public class MediaDetailActivity extends AppCompatActivity {
                  PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
 
                 commandOut.println("DELETE_MEDIA");
+                commandOut.flush();
+
                 ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
                 objectOut.writeInt(selectedMedia.getWorkId());
                 objectOut.flush();
 
                 runOnUiThread(() -> {
-                    Toast.makeText(MediaDetailActivity.this, "Media deleted successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Media eliminado correctamente", Toast.LENGTH_SHORT).show();
                     finish();
                 });
 
             } catch (Exception e) {
-                runOnUiThread(() -> Toast.makeText(MediaDetailActivity.this, "Error deleting media: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                Log.e(TAG, "Error al eliminar Media", e);
+                runOnUiThread(() -> Toast.makeText(this, "Error al eliminar Media: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
