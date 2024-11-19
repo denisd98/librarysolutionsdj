@@ -78,41 +78,6 @@ public class MediaDetailActivity extends AppCompatActivity {
         backButton.setOnClickListener(v -> finish());
     }
 
-    private void loadMediaDetails(int mediaId) {
-        new Thread(() -> {
-            try (Socket socket = new Socket("10.0.2.2", 12345);
-                 PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true);
-                 ObjectInputStream objectIn = new ObjectInputStream(socket.getInputStream())) {
-
-                // Enviar el comando al servidor
-                commandOut.println("GET_MEDIA_BY_ID");
-                commandOut.println(mediaId);
-                commandOut.flush();
-
-                // Recibir el objeto Media desde el servidor
-                Media media = (Media) objectIn.readObject();
-
-                if (media != null) {
-                    Log.d(TAG, "Media recibido: " + media.getTitle());
-                    Log.d(TAG, "Autores recibidos: " + media.getAuthors());
-                    runOnUiThread(() -> {
-                        selectedMedia = media;
-                        populateFieldsWithSelectedMedia();
-                    });
-                } else {
-                    runOnUiThread(() -> {
-                        Toast.makeText(this, "No se encontró el Media", Toast.LENGTH_SHORT).show();
-                        finish();
-                    });
-                }
-
-            } catch (Exception e) {
-                Log.e(TAG, "Error al cargar detalles del Media", e);
-                runOnUiThread(() -> Toast.makeText(this, "Error al cargar Media: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-            }
-        }).start();
-    }
-
     private void populateFieldsWithSelectedMedia() {
         if (selectedMedia != null) {
             titleEditText.setText(selectedMedia.getTitle());
@@ -153,17 +118,16 @@ public class MediaDetailActivity extends AppCompatActivity {
 
         new Thread(() -> {
             try (Socket socket = new Socket("10.0.2.2", 12345);
-                 PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
+                 ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
+                 ObjectInputStream objectIn = new ObjectInputStream(socket.getInputStream())) {
 
-                commandOut.println("MODIFY_MEDIA");
-                commandOut.flush();
-
-                ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-                objectOut.writeObject(selectedMedia);
+                // Enviar comando y datos como objetos
+                objectOut.writeObject("MODIFY_MEDIA"); // Enviar comando
+                objectOut.writeObject(selectedMedia); // Enviar objeto Media actualizado
                 objectOut.flush();
 
-                BufferedReader responseReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String response = responseReader.readLine();
+                // Leer respuesta del servidor
+                String response = (String) objectIn.readObject();
 
                 if ("MODIFY_MEDIA_OK".equals(response)) {
                     runOnUiThread(() -> Toast.makeText(this, "Cambios guardados correctamente", Toast.LENGTH_SHORT).show());

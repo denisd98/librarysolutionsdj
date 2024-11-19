@@ -59,6 +59,14 @@ public class UserCreate extends AppCompatActivity {
         backButton.setOnClickListener(v -> finish());
     }
 
+    private boolean isTestEnvironment = false; // Bandera para indicar el entorno de prueba
+
+    // Método para configurar el entorno de prueba
+    public void setTestEnvironment(boolean isTestEnvironment) {
+        this.isTestEnvironment = isTestEnvironment;
+    }
+
+
     private void createUser() {
         // Recoger datos del formulario
         String username = usernameEditText.getText().toString().trim();
@@ -71,29 +79,38 @@ public class UserCreate extends AppCompatActivity {
         // Validación de campos requeridos
         if (username.isEmpty() || password.isEmpty() || realname.isEmpty() || surname1.isEmpty()) {
             Snackbar.make(findViewById(android.R.id.content), "Si us plau, omple tots els camps requerits.", Snackbar.LENGTH_LONG).show();
-            return; // Detener el proceso si algún campo obligatorio está vacío
+            return;
         }
 
         User newUser = new User(0, username, password, realname, surname1, surname2, User.stringToUserType(userType));
 
         new Thread(() -> {
             try {
-                Socket socket = new Socket("10.0.2.2", 12345);
+                String response;
 
-                PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true);
-                commandOut.println("ADD_USER");
+                if (isTestEnvironment) {
+                    // Simular respuesta del servidor en entorno de pruebas
+                    response = MockServer.simulateCreateUserRequest();
+                } else {
+                    // Comunicación real con el servidor
+                    try (Socket socket = new Socket("10.0.2.2", 12345);
+                         PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
 
-                ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-                objectOut.writeObject(newUser);
-                objectOut.flush();
+                        commandOut.println("ADD_USER");
 
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String response = in.readLine();
+                        ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
+                        objectOut.writeObject(newUser);
+                        objectOut.flush();
 
+                        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        response = in.readLine();
+                    }
+                }
+
+                // Procesar la respuesta
                 if ("USER_CREATED".equals(response)) {
                     runOnUiThread(() -> {
-                        Toast.makeText(UserCreate.this, "Usuari creat correctament", Toast.LENGTH_SHORT).show();
-                        finish();
+                        Snackbar.make(findViewById(android.R.id.content), "Usuari creat correctament", Snackbar.LENGTH_SHORT).show();
                     });
                 } else if (response != null && (response.contains("unique") || response.contains("duplicate"))) {
                     // Mensaje específico si el username ya existe
@@ -103,15 +120,11 @@ public class UserCreate extends AppCompatActivity {
                     runOnUiThread(() -> Toast.makeText(UserCreate.this, "Error creating user: " + response, Toast.LENGTH_SHORT).show());
                 }
 
-                commandOut.close();
-                objectOut.close();
-                in.close();
-                socket.close();
-
             } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(() -> Toast.makeText(UserCreate.this, "Error creating user: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
+
 }

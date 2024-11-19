@@ -12,6 +12,8 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
+import com.example.librarysolutionsdj.Users.MockServer;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -66,10 +68,17 @@ public class AuthorDetailActivity extends AppCompatActivity {
         }
     }
 
+    private boolean isTestEnvironment = false; // Bandera para indicar el entorno de prueba
+
+    // Método para configurar el entorno de prueba
+    public void setTestEnvironment(boolean isTestEnvironment) {
+        this.isTestEnvironment = isTestEnvironment;
+    }
+
     private void saveChanges() {
         // Validar campos obligatorios
         if (authorNameEditText.getText().toString().isEmpty() || nationalityEditText.getText().toString().isEmpty()) {
-            Toast.makeText(this, "Nom i Nacionalitat són obligatoris", Toast.LENGTH_SHORT).show();
+            Snackbar.make(findViewById(android.R.id.content), "Nom i Nacionalitat són obligatoris", Snackbar.LENGTH_SHORT).show();
             return;
         }
 
@@ -78,7 +87,7 @@ public class AuthorDetailActivity extends AppCompatActivity {
         try {
             yearBirth = Integer.parseInt(yearBirthEditText.getText().toString());
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "Any de naixement ha de ser un número", Toast.LENGTH_SHORT).show();
+            Snackbar.make(findViewById(android.R.id.content), "Any de naixement ha de ser un número", Snackbar.LENGTH_SHORT).show();
             return;
         }
 
@@ -91,38 +100,47 @@ public class AuthorDetailActivity extends AppCompatActivity {
         selectedAuthor.setYearbirth(yearBirth);
 
         new Thread(() -> {
-            try (Socket socket = new Socket("10.0.2.2", 12345);
-                 PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
+            try {
+                String response;
+                if (isTestEnvironment) {
+                    // Simulación en entorno de prueba
+                    response = MockServer.simulateModifyAuthorRequest();
+                } else {
+                    // Conexión real con el servidor
+                    try (Socket socket = new Socket("10.0.2.2", 12345);
+                         PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
 
-                commandOut.println("MODIFY_AUTHOR");
-                commandOut.flush();
+                        commandOut.println("MODIFY_AUTHOR");
+                        commandOut.flush();
 
-                ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-                objectOut.writeInt(selectedAuthor.getAuthorid()); // Cambiado a getAuthorid()
-                objectOut.writeObject(selectedAuthor);
-                objectOut.flush();
+                        ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
+                        objectOut.writeInt(selectedAuthor.getAuthorid()); // Cambiado a getAuthorid()
+                        objectOut.writeObject(selectedAuthor);
+                        objectOut.flush();
 
-                BufferedReader responseReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String response = responseReader.readLine();
+                        BufferedReader responseReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        response = responseReader.readLine();
+                    }
+                }
 
                 if ("MODIFY_AUTHOR_OK".equals(response)) {
                     runOnUiThread(() -> {
-                        Toast.makeText(AuthorDetailActivity.this, "Changes saved successfully", Toast.LENGTH_SHORT).show();
+                        Snackbar.make(findViewById(android.R.id.content), "Canvis aplicats satisfactoriament", Snackbar.LENGTH_LONG).show();
                         Intent resultIntent = new Intent();
                         resultIntent.putExtra("updatedAuthor", selectedAuthor);
                         setResult(RESULT_OK, resultIntent);
-                        finish();
                     });
                 } else {
-                    runOnUiThread(() -> Toast.makeText(AuthorDetailActivity.this, "Error saving changes", Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> Toast.makeText(AuthorDetailActivity.this, "Error guardant canvis", Toast.LENGTH_SHORT).show());
                 }
 
             } catch (Exception e) {
                 e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(AuthorDetailActivity.this, "Error saving changes: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(AuthorDetailActivity.this, "Error guardant canvis: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
+
 
     private void deleteAuthor() {
         new Thread(() -> {
@@ -135,12 +153,12 @@ public class AuthorDetailActivity extends AppCompatActivity {
                 objectOut.flush();
 
                 runOnUiThread(() -> {
-                    Toast.makeText(AuthorDetailActivity.this, "Author deleted successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AuthorDetailActivity.this, "Autor eliminat satisfactoriament", Toast.LENGTH_SHORT).show();
                     finish();
                 });
 
             } catch (Exception e) {
-                runOnUiThread(() -> Toast.makeText(AuthorDetailActivity.this, "Error deleting author: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(AuthorDetailActivity.this, "Error eliminant autor: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
     }

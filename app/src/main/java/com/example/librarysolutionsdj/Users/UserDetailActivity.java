@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
 import com.example.librarysolutionsdj.SessionManager.SessionManager;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -120,13 +121,19 @@ public class UserDetailActivity extends AppCompatActivity {
         }
     }
 
+    private boolean isTestEnvironment = false;
+
+    // Método para configurar el entorno de prueba
+    public void setTestEnvironment(boolean isTestEnvironment) {
+        this.isTestEnvironment = isTestEnvironment;
+    }
+
     private void saveChanges() {
         if (passwordEditText.getText().toString().isEmpty()) {
-            Toast.makeText(this, "La contraseña no puede estar vacía", Toast.LENGTH_SHORT).show();
+            Snackbar.make(findViewById(android.R.id.content), "La contraseña no puede estar vacía", Snackbar.LENGTH_LONG).show();
             return;
         }
 
-        // Actualizar el objeto usuario con los nuevos datos
         selectedUser.setUsername(usernameEditText.getText().toString());
         selectedUser.setRealname(realnameEditText.getText().toString());
         selectedUser.setSurname1(surname1EditText.getText().toString());
@@ -135,27 +142,35 @@ public class UserDetailActivity extends AppCompatActivity {
         selectedUser.setType(User.stringToUserType(userTypeSpinner.getSelectedItem().toString()));
 
         new Thread(() -> {
-            try (Socket socket = new Socket("10.0.2.2", 12345);
-                 PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
+            try {
+                String response;
+                if (isTestEnvironment) {
+                    // Simulación en entorno de prueba
+                    response = MockServer.simulateModifyUserRequest();
+                } else {
+                    // Conexión real con el servidor
+                    try (Socket socket = new Socket("10.0.2.2", 12345);
+                         PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
 
-                commandOut.println("MODIFY_USER");
-                commandOut.flush();
+                        commandOut.println("MODIFY_USER");
+                        commandOut.flush();
 
-                ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-                objectOut.writeInt(selectedUser.getId());
-                objectOut.writeObject(selectedUser);
-                objectOut.flush();
+                        ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
+                        objectOut.writeInt(selectedUser.getId());
+                        objectOut.writeObject(selectedUser);
+                        objectOut.flush();
 
-                BufferedReader responseReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String response = responseReader.readLine();
+                        BufferedReader responseReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        response = responseReader.readLine();
+                    }
+                }
 
                 if ("MODIFY_USER_OK".equals(response)) {
                     runOnUiThread(() -> {
-                        Toast.makeText(UserDetailActivity.this, "Changes saved successfully", Toast.LENGTH_SHORT).show();
+                        Snackbar.make(findViewById(android.R.id.content), "Canvis aplicats satisfactoriament", Snackbar.LENGTH_LONG).show();
                         Intent resultIntent = new Intent();
                         resultIntent.putExtra("updatedUser", selectedUser);
                         setResult(RESULT_OK, resultIntent);
-                        finish();
                     });
                 } else {
                     runOnUiThread(() -> Toast.makeText(UserDetailActivity.this, "Error saving changes", Toast.LENGTH_SHORT).show());
@@ -166,7 +181,6 @@ public class UserDetailActivity extends AppCompatActivity {
                 runOnUiThread(() -> Toast.makeText(UserDetailActivity.this, "Error saving changes: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
-
     }
 
     private void deleteUser() {

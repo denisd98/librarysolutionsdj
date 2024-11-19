@@ -10,7 +10,7 @@ public class ToastIdlingResource implements IdlingResource {
     public ToastIdlingResource() {
         new Thread(() -> {
             try {
-                Thread.sleep(2000); // Espera el tiempo estimado del Toast
+                Thread.sleep(2000); // Tiempo típico de aparición de un Toast.
                 isIdle = true;
                 if (resourceCallback != null) {
                     resourceCallback.onTransitionToIdle();
@@ -36,3 +36,4 @@ public class ToastIdlingResource implements IdlingResource {
         this.resourceCallback = callback;
     }
 }
+

@@ -1,5 +1,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
@@ -86,21 +87,21 @@
         android:id="@+id/delete_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="72dp"
         android:backgroundTint="#EB0000"
         android:text="Esborrar Media"
-        app:layout_constraintTop_toBottomOf="@id/save_button"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/save_button" />
 
     <Button
         android:id="@+id/select_author_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Seleccionar Autores"
+        android:layout_width="381dp"
+        android:layout_height="49dp"
+        android:layout_marginTop="76dp"
         android:backgroundTint="#3FA9F5"
-        app:layout_constraintTop_toBottomOf="@id/authors_list_view"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:text="Seleccionar Autores"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/authors_list_view" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

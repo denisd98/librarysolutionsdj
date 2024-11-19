@@ -11,6 +11,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
+import com.example.librarysolutionsdj.Users.MockServer;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.BufferedReader;
@@ -46,6 +47,12 @@ public class AuthorCreate extends AppCompatActivity {
         backButton.setOnClickListener(v -> finish());
     }
 
+    private boolean isTestEnvironment = false; // Bandera para indicar el entorno de prueba
+    // Método para configurar el entorno de prueba
+    public void setTestEnvironment(boolean isTestEnvironment) {
+        this.isTestEnvironment = isTestEnvironment;
+    }
+
     private void createAuthor() {
         // Recoger datos del formulario
         String authorName = authorNameEditText.getText().toString().trim();
@@ -73,31 +80,34 @@ public class AuthorCreate extends AppCompatActivity {
 
         new Thread(() -> {
             try {
-                Socket socket = new Socket("10.0.2.2", 12345);
+                String response;
 
-                PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true);
-                commandOut.println("ADD_AUTHOR");
+                if (isTestEnvironment) {
+                    // Simulación en entorno de prueba
+                    response = MockServer.simulateCreateAuthorRequest();
+                } else {
+                    // Conexión real con el servidor
+                    try (Socket socket = new Socket("10.0.2.2", 12345);
+                         PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
 
-                ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-                objectOut.writeObject(newAuthor);
-                objectOut.flush();
+                        commandOut.println("ADD_AUTHOR");
 
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String response = in.readLine();
+                        ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
+                        objectOut.writeObject(newAuthor);
+                        objectOut.flush();
+
+                        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        response = in.readLine();
+                    }
+                }
 
                 if ("AUTHOR_CREATED".equals(response)) {
                     runOnUiThread(() -> {
-                        Toast.makeText(AuthorCreate.this, "Autor creat correctament", Toast.LENGTH_SHORT).show();
-                        finish();
+                        Snackbar.make(findViewById(android.R.id.content), "Autor creat correctament", Snackbar.LENGTH_SHORT).show();
                     });
                 } else {
                     runOnUiThread(() -> Toast.makeText(AuthorCreate.this, "Error creant autor: " + response, Toast.LENGTH_SHORT).show());
                 }
-
-                commandOut.close();
-                objectOut.close();
-                in.close();
-                socket.close();
 
             } catch (Exception e) {
                 e.printStackTrace();
