@@ -23,6 +23,11 @@ import java.net.Socket;
 
 import app.model.User;
 
+/**
+ * Activitat per a la creació d'un nou usuari.
+ * Aquesta classe permet recollir les dades d'un usuari mitjançant un formulari i enviar-les al servidor
+ * per afegir el nou usuari al sistema.
+ */
 public class UserCreate extends AppCompatActivity {
 
     private EditText usernameEditText, passwordEditText, realnameEditText, surname1EditText, surname2EditText;
@@ -30,6 +35,13 @@ public class UserCreate extends AppCompatActivity {
     private Button createButton;
     private ImageButton backButton;
 
+    private boolean isTestEnvironment = false; // Indica si l'activitat està en un entorn de proves
+
+    /**
+     * Configura la interfície gràfica de l'activitat i inicialitza els components.
+     *
+     * @param savedInstanceState estat guardat de l'activitat.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,8 +55,9 @@ public class UserCreate extends AppCompatActivity {
         surname2EditText = findViewById(R.id.surname2_edit_text);
         userTypeSpinner = findViewById(R.id.user_type_spinner);
         createButton = findViewById(R.id.create_button);
-        backButton = findViewById(R.id.back_button); // Botón de volver
+        backButton = findViewById(R.id.back_button);
 
+        // Configurar l'Spinner amb els tipus d'usuari
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this,
                 R.array.user_types_array,
@@ -53,22 +66,28 @@ public class UserCreate extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         userTypeSpinner.setAdapter(adapter);
 
+        // Configurar el botó per crear l'usuari
         createButton.setOnClickListener(v -> createUser());
 
-        // Configurar el botón de volver atrás
+        // Configurar el botó per tornar enrere
         backButton.setOnClickListener(v -> finish());
     }
 
-    private boolean isTestEnvironment = false; // Bandera para indicar el entorno de prueba
-
-    // Método para configurar el entorno de prueba
+    /**
+     * Configura si l'activitat ha d'executar-se en un entorn de proves.
+     *
+     * @param isTestEnvironment cert si l'activitat està en mode de proves.
+     */
     public void setTestEnvironment(boolean isTestEnvironment) {
         this.isTestEnvironment = isTestEnvironment;
     }
 
-
+    /**
+     * Crea un nou usuari enviant les dades del formulari al servidor.
+     * Si l'entorn és de proves, s'utilitza una resposta simulada.
+     */
     private void createUser() {
-        // Recoger datos del formulario
+        // Recollir dades del formulari
         String username = usernameEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
         String realname = realnameEditText.getText().toString().trim();
@@ -76,23 +95,25 @@ public class UserCreate extends AppCompatActivity {
         String surname2 = surname2EditText.getText().toString().trim();
         String userType = userTypeSpinner.getSelectedItem().toString();
 
-        // Validación de campos requeridos
+        // Validar camps obligatoris
         if (username.isEmpty() || password.isEmpty() || realname.isEmpty() || surname1.isEmpty()) {
             Snackbar.make(findViewById(android.R.id.content), "Si us plau, omple tots els camps requerits.", Snackbar.LENGTH_LONG).show();
             return;
         }
 
+        // Crear l'objecte User amb les dades recollides
         User newUser = new User(0, username, password, realname, surname1, surname2, User.stringToUserType(userType));
 
+        // Enviar dades al servidor en un fil secundari
         new Thread(() -> {
             try {
                 String response;
 
                 if (isTestEnvironment) {
-                    // Simular respuesta del servidor en entorno de pruebas
+                    // Simular resposta del servidor en mode proves
                     response = MockServer.simulateCreateUserRequest();
                 } else {
-                    // Comunicación real con el servidor
+                    // Comunicació real amb el servidor
                     try (Socket socket = new Socket("10.0.2.2", 12345);
                          PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
 
@@ -107,24 +128,19 @@ public class UserCreate extends AppCompatActivity {
                     }
                 }
 
-                // Procesar la respuesta
+                // Processar resposta del servidor
                 if ("USER_CREATED".equals(response)) {
-                    runOnUiThread(() -> {
-                        Snackbar.make(findViewById(android.R.id.content), "Usuari creat correctament", Snackbar.LENGTH_SHORT).show();
-                    });
+                    runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "Usuari creat correctament", Snackbar.LENGTH_SHORT).show());
                 } else if (response != null && (response.contains("unique") || response.contains("duplicate"))) {
-                    // Mensaje específico si el username ya existe
-                    runOnUiThread(() -> Toast.makeText(UserCreate.this, "Username already exists!", Toast.LENGTH_LONG).show());
+                    runOnUiThread(() -> Toast.makeText(UserCreate.this, "El nom d'usuari ja existeix!", Toast.LENGTH_LONG).show());
                 } else {
-                    // Otros errores generales
-                    runOnUiThread(() -> Toast.makeText(UserCreate.this, "Error creating user: " + response, Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> Toast.makeText(UserCreate.this, "Error creant l'usuari: " + response, Toast.LENGTH_SHORT).show());
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(UserCreate.this, "Error creating user: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                Log.e("UserCreate", "Error creant l'usuari", e);
+                runOnUiThread(() -> Toast.makeText(UserCreate.this, "Error creant l'usuari: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
-
 }

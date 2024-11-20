@@ -20,7 +20,7 @@ import com.example.librarysolutionsdj.Login.LoginActivity;
  * Aquesta classe extén {@link AppCompatActivity} i utilitza la funcionalitat {@link EdgeToEdge} per gestionar el disseny visual.
  *
  * @author Denys Dyachuk
- * @version 0.3, 21/10/24
+ * @version 0.5, 20/11/24
  */
 public class MainActivity extends AppCompatActivity {
 

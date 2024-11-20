@@ -27,6 +27,10 @@ import app.model.Author;
 import app.model.Media;
 import app.model.MediaType;
 
+/**
+ * Activitat per gestionar els detalls d'una obra (Media) específica.
+ * Permet veure, modificar i eliminar una obra registrada al sistema.
+ */
 public class MediaDetailActivity extends AppCompatActivity {
 
     private EditText titleEditText, yearPublicationEditText, descriptionEditText;
@@ -39,12 +43,18 @@ public class MediaDetailActivity extends AppCompatActivity {
 
     private static final String TAG = "MediaDetailActivity";
 
+    /**
+     * S'executa quan es crea l'activitat. Configura la interfície d'usuari
+     * i inicialitza els camps amb la informació de l'obra seleccionada.
+     *
+     * @param savedInstanceState L'estat guardat de l'activitat.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_detail);
 
-        // Inicialización de los campos
+        // Inicialització de components visuals
         titleEditText = findViewById(R.id.title_edit_text);
         yearPublicationEditText = findViewById(R.id.year_publication_edit_text);
         descriptionEditText = findViewById(R.id.description_edit_text);
@@ -54,30 +64,33 @@ public class MediaDetailActivity extends AppCompatActivity {
         deleteButton = findViewById(R.id.delete_button);
         backButton = findViewById(R.id.back_button);
 
-        // Configurar Spinner de MediaType
+        // Configurar l'Spinner per seleccionar el tipus de mitjà (MediaType)
         ArrayAdapter<MediaType> mediaTypeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, MediaType.values());
         mediaTypeSpinner.setAdapter(mediaTypeAdapter);
 
-        // Configurar ListView de Autores
+        // Configurar el ListView per mostrar autors
         authorsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
         authorsListView.setAdapter(authorsAdapter);
 
-        // Recibir el objeto Media desde el Intent
+        // Rebre l'objecte Media des de l'Intent
         selectedMedia = (Media) getIntent().getSerializableExtra("selectedMedia");
 
         if (selectedMedia != null) {
-            populateFieldsWithSelectedMedia();
+            populateFieldsWithSelectedMedia(); // Omplir els camps amb les dades de l'obra
         } else {
-            Toast.makeText(this, "Media ID no válido o no encontrado", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Media ID no vàlid o no trobat", Toast.LENGTH_SHORT).show();
             finish();
         }
 
-        // Configurar botones
+        // Configurar els botons
         saveButton.setOnClickListener(v -> saveChanges());
         deleteButton.setOnClickListener(v -> deleteMedia());
         backButton.setOnClickListener(v -> finish());
     }
 
+    /**
+     * Omple els camps del formulari amb la informació de l'obra seleccionada.
+     */
     private void populateFieldsWithSelectedMedia() {
         if (selectedMedia != null) {
             titleEditText.setText(selectedMedia.getTitle());
@@ -85,22 +98,25 @@ public class MediaDetailActivity extends AppCompatActivity {
             descriptionEditText.setText(selectedMedia.getMedia_description());
             mediaTypeSpinner.setSelection(selectedMedia.getMediaType().ordinal());
 
-            // Procesar y mostrar autores
+            // Processar i mostrar autors
             authorsAdapter.clear();
             if (selectedMedia.getAuthors() != null && !selectedMedia.getAuthors().isEmpty()) {
                 for (Author author : selectedMedia.getAuthors()) {
                     authorsAdapter.add(author.getAuthorname() + " " + author.getSurname1());
                 }
             } else {
-                authorsAdapter.add("No hay autores asignados");
+                authorsAdapter.add("No hi ha autors assignats");
             }
             authorsAdapter.notifyDataSetChanged();
         }
     }
 
+    /**
+     * Desa els canvis realitzats a l'obra seleccionada al servidor.
+     */
     private void saveChanges() {
         if (titleEditText.getText().toString().isEmpty()) {
-            Toast.makeText(this, "El título es obligatorio", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "El títol és obligatori", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -108,7 +124,7 @@ public class MediaDetailActivity extends AppCompatActivity {
             int year = Integer.parseInt(yearPublicationEditText.getText().toString());
             selectedMedia.setYearPublication(year);
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "El año debe ser un número válido", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "L'any ha de ser un número vàlid", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -121,27 +137,30 @@ public class MediaDetailActivity extends AppCompatActivity {
                  ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
                  ObjectInputStream objectIn = new ObjectInputStream(socket.getInputStream())) {
 
-                // Enviar comando y datos como objetos
-                objectOut.writeObject("MODIFY_MEDIA"); // Enviar comando
-                objectOut.writeObject(selectedMedia); // Enviar objeto Media actualizado
+                // Enviar comandament i dades com a objectes
+                objectOut.writeObject("MODIFY_MEDIA"); // Comandament
+                objectOut.writeObject(selectedMedia); // Dades actualitzades
                 objectOut.flush();
 
-                // Leer respuesta del servidor
+                // Llegir resposta del servidor
                 String response = (String) objectIn.readObject();
 
                 if ("MODIFY_MEDIA_OK".equals(response)) {
-                    runOnUiThread(() -> Toast.makeText(this, "Cambios guardados correctamente", Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> Toast.makeText(this, "Canvis guardats correctament", Toast.LENGTH_SHORT).show());
                 } else {
-                    runOnUiThread(() -> Toast.makeText(this, "Error al guardar cambios", Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> Toast.makeText(this, "Error al guardar canvis", Toast.LENGTH_SHORT).show());
                 }
 
             } catch (Exception e) {
-                Log.e(TAG, "Error al guardar cambios", e);
-                runOnUiThread(() -> Toast.makeText(this, "Error al guardar cambios: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                Log.e(TAG, "Error al guardar canvis", e);
+                runOnUiThread(() -> Toast.makeText(this, "Error al guardar canvis: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
 
+    /**
+     * Elimina l'obra seleccionada del servidor.
+     */
     private void deleteMedia() {
         new Thread(() -> {
             try (Socket socket = new Socket("10.0.2.2", 12345);
@@ -155,7 +174,7 @@ public class MediaDetailActivity extends AppCompatActivity {
                 objectOut.flush();
 
                 runOnUiThread(() -> {
-                    Toast.makeText(this, "Media eliminado correctamente", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Media eliminada correctament", Toast.LENGTH_SHORT).show();
                     finish();
                 });
 

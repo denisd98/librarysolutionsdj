@@ -22,18 +22,29 @@ import java.net.Socket;
 
 import app.model.Author;
 
+/**
+ * Activitat per crear un nou autor.
+ * L'usuari pot introduir la informació necessària sobre l'autor i guardar-la.
+ */
 public class AuthorCreate extends AppCompatActivity {
 
     private EditText authorNameEditText, surname1EditText, surname2EditText, biographyEditText, nationalityEditText, yearBirthEditText;
     private Button createButton;
     private ImageButton backButton;
+    private boolean isTestEnvironment = false; // Bandera per indicar si l'entorn és de prova
 
+    /**
+     * Inicialitza la interfície d'usuari de l'activitat.
+     *
+     * @param savedInstanceState Estat anterior de l'activitat, si n'hi ha.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_author_create);
         EdgeToEdge.enable(this);
 
+        // Inicialització dels components de la vista
         authorNameEditText = findViewById(R.id.author_name_edit_text);
         surname1EditText = findViewById(R.id.surname1_edit_text);
         surname2EditText = findViewById(R.id.surname2_edit_text);
@@ -43,18 +54,26 @@ public class AuthorCreate extends AppCompatActivity {
         createButton = findViewById(R.id.create_button);
         backButton = findViewById(R.id.back_button);
 
+        // Configuració dels botons
         createButton.setOnClickListener(v -> createAuthor());
         backButton.setOnClickListener(v -> finish());
     }
 
-    private boolean isTestEnvironment = false; // Bandera para indicar el entorno de prueba
-    // Método para configurar el entorno de prueba
+    /**
+     * Configura l'entorn de prova.
+     *
+     * @param isTestEnvironment Indica si l'activitat s'executa en un entorn de prova.
+     */
     public void setTestEnvironment(boolean isTestEnvironment) {
         this.isTestEnvironment = isTestEnvironment;
     }
 
+    /**
+     * Recull les dades del formulari i crea un nou autor.
+     * Comprova la validesa dels camps obligatoris i envia les dades al servidor.
+     */
     private void createAuthor() {
-        // Recoger datos del formulario
+        // Recollir dades del formulari
         String authorName = authorNameEditText.getText().toString().trim();
         String surname1 = surname1EditText.getText().toString().trim();
         String surname2 = surname2EditText.getText().toString().trim();
@@ -62,7 +81,7 @@ public class AuthorCreate extends AppCompatActivity {
         String nationality = nationalityEditText.getText().toString().trim();
         String yearBirthStr = yearBirthEditText.getText().toString().trim();
 
-        // Validación de campos obligatorios
+        // Validació de camps obligatoris
         if (authorName.isEmpty() || nationality.isEmpty() || yearBirthStr.isEmpty()) {
             Snackbar.make(findViewById(android.R.id.content), "Si us plau, omple tots els camps obligatoris.", Snackbar.LENGTH_LONG).show();
             return;
@@ -76,17 +95,19 @@ public class AuthorCreate extends AppCompatActivity {
             return;
         }
 
+        // Crear objecte Autor
         Author newAuthor = new Author(0, authorName, surname1, surname2, biography, nationality, yearBirth);
 
+        // Enviar les dades al servidor en un fil independent
         new Thread(() -> {
             try {
                 String response;
 
                 if (isTestEnvironment) {
-                    // Simulación en entorno de prueba
+                    // Simulació en entorn de prova
                     response = MockServer.simulateCreateAuthorRequest();
                 } else {
-                    // Conexión real con el servidor
+                    // Connexió real amb el servidor
                     try (Socket socket = new Socket("10.0.2.2", 12345);
                          PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
 
@@ -101,6 +122,7 @@ public class AuthorCreate extends AppCompatActivity {
                     }
                 }
 
+                // Comprovar la resposta del servidor
                 if ("AUTHOR_CREATED".equals(response)) {
                     runOnUiThread(() -> {
                         Snackbar.make(findViewById(android.R.id.content), "Autor creat correctament", Snackbar.LENGTH_SHORT).show();

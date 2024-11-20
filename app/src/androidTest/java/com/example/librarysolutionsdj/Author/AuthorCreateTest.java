@@ -23,22 +23,34 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+/**
+ * Classe de proves per validar la funcionalitat de la pantalla de creació d'autors (AuthorCreate).
+ * Les proves asseguren que es mostrin els missatges correctes i que la validació funcioni adequadament.
+ */
 @RunWith(AndroidJUnit4.class)
 public class AuthorCreateTest {
 
+    /**
+     * Regla per llançar l'activitat de prova.
+     * El tercer paràmetre indica si l'activitat es llança automàticament.
+     */
     @Rule
     public ActivityTestRule<AuthorCreate> activityRule = new ActivityTestRule<>(AuthorCreate.class, true, false);
 
+    /**
+     * Prova que valida la creació d'un autor amb camps correctes.
+     * Es comprova que es mostri un missatge d'èxit quan tots els camps són vàlids.
+     */
     @Test
     public void testCreateAuthorWithValidFields() {
         ActivityScenario<AuthorCreate> scenario = ActivityScenario.launch(AuthorCreate.class);
 
         scenario.onActivity(activity -> {
-            // Activar entorno de prueba
+            // Activar entorn de prova
             activity.setTestEnvironment(true);
         });
 
-        // Rellenar campos válidos
+        // Omplir els camps amb valors vàlids
         onView(withId(R.id.author_name_edit_text)).perform(replaceText("Author Test"));
         onView(withId(R.id.surname1_edit_text)).perform(replaceText("Surname1"));
         onView(withId(R.id.surname2_edit_text)).perform(replaceText("Surname2"));
@@ -46,50 +58,58 @@ public class AuthorCreateTest {
         onView(withId(R.id.nationality_edit_text)).perform(replaceText("Spain"));
         onView(withId(R.id.year_birth_edit_text)).perform(replaceText("1980"));
 
-        // Click en el botón de creación
+        // Fer clic al botó de creació
         onView(withId(R.id.create_button)).perform(click());
 
-        // Verificar el mensaje de éxito
+        // Comprovar que es mostri el missatge d'èxit
         onView(withText("Autor creat correctament"))
                 .check(matches(ViewMatchers.isDisplayed()));
     }
 
+    /**
+     * Prova que valida que no es permet crear un autor amb camps buits.
+     * Es comprova que es mostri un missatge d'error adequat.
+     */
     @Test
     public void testCreateAuthorWithEmptyFields() {
-        // Lanzar la actividad
+        // Llançar l'activitat
         activityRule.launchActivity(new Intent());
 
-        // Simular entrada de datos incompleta
-        onView(withId(R.id.author_name_edit_text)).perform(replaceText("")); // Campo vacío
-        onView(withId(R.id.nationality_edit_text)).perform(replaceText("")); // Campo vacío
-        onView(withId(R.id.year_birth_edit_text)).perform(replaceText("")); // Campo vacío
+        // Omplir alguns camps amb valors buits
+        onView(withId(R.id.author_name_edit_text)).perform(replaceText("")); // Camp buit
+        onView(withId(R.id.nationality_edit_text)).perform(replaceText("")); // Camp buit
+        onView(withId(R.id.year_birth_edit_text)).perform(replaceText("")); // Camp buit
 
-        // Click en el botón de creación
+        // Fer clic al botó de creació
         onView(withId(R.id.create_button)).perform(click());
 
-        // Verificar que el mensaje de error se muestra
+        // Comprovar que es mostri el missatge d'error
         onView(withText("Si us plau, omple tots els camps obligatoris."))
                 .check(matches(isDisplayed()));
     }
 
+    /**
+     * Prova que valida que no es permet crear un autor amb un any de naixement invàlid.
+     * Es comprova que es mostri un missatge d'error adequat.
+     */
     @Test
     public void testCreateAuthorWithInvalidYear() {
         ActivityScenario<AuthorCreate> scenario = ActivityScenario.launch(AuthorCreate.class);
 
         scenario.onActivity(activity -> {
-            // Activar entorno de prueba
+            // Activar entorn de prova
             activity.setTestEnvironment(true);
         });
 
-        // Rellenar campos con un año inválido
+        // Omplir els camps amb un any invàlid
         onView(withId(R.id.author_name_edit_text)).perform(replaceText("Author Test"));
         onView(withId(R.id.nationality_edit_text)).perform(replaceText("Spain"));
-        onView(withId(R.id.year_birth_edit_text)).perform(replaceText("abcd")); // Año inválido
+        onView(withId(R.id.year_birth_edit_text)).perform(replaceText("abcd")); // Any invàlid
 
-        // Click en el botón de creación
+        // Fer clic al botó de creació
         onView(withId(R.id.create_button)).perform(click());
 
-        // Verificar que el mensaje de error se muestra
+        // Comprovar que es mostri el missatge d'error
         onView(withText("L'any de naixement ha de ser un número."))
                 .check(matches(isDisplayed()));
     }

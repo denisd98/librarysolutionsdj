@@ -5,19 +5,19 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testSaveWithValidFields()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="testCreateUserWithValidFields()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testCreateAuthorWithInvalidYear()">
+      <SelectionState runConfigName="testCreateUserWithEmptyFields()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testCreateAuthorWithEmptyFields()">
+      <SelectionState runConfigName="AuthorCreateTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testCreateAuthorWithValidFields()">
+      <SelectionState runConfigName="testSaveWithEmptyFields()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="testSaveWithValidFields()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

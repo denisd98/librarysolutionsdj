@@ -4,16 +4,11 @@ import android.content.Intent;
 import android.util.Log;
 
 import androidx.test.core.app.ActivityScenario;
-import androidx.test.espresso.Espresso;
-import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 
 import com.example.librarysolutionsdj.R;
-import com.example.librarysolutionsdj.ToastIdlingResource;
-import com.example.librarysolutionsdj.ToastMatcher;
-import com.example.librarysolutionsdj.Users.UserCreate;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,65 +26,80 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 
+/**
+ * Classe de proves per a validar la funcionalitat de l'activitat UserCreate.
+ * Les proves verifiquen que l'aplicació gestiona correctament la creació d'usuaris, incloent-hi
+ * validacions de camps obligatoris i confirmació de la creació.
+ */
 @RunWith(AndroidJUnit4.class)
 public class UserCreateTest {
 
+    /**
+     * Rule que gestiona el llançament de l'activitat UserCreate per a cada prova.
+     * Aquesta rule assegura que cada test té un escenari consistent.
+     */
     @Rule
     public ActivityTestRule<UserCreate> activityRule = new ActivityTestRule<>(UserCreate.class, true, false);
 
+    /**
+     * Prova per validar la creació d'un usuari amb tots els camps correctament omplerts.
+     * Verifica que es mostra un missatge de confirmació després de completar la creació.
+     */
     @Test
     public void testCreateUserWithValidFields() {
+        // Llançar l'activitat
         ActivityScenario<UserCreate> scenario = ActivityScenario.launch(UserCreate.class);
 
         scenario.onActivity(activity -> {
-            // Activar entorno de prueba
+            // Configurar l'entorn de prova
             activity.setTestEnvironment(true);
         });
 
-        // Rellenar campos válidos
+        // Omplir els camps amb dades vàlides
         onView(withId(R.id.username_edit_text)).perform(replaceText("testuser"));
         onView(withId(R.id.password_edit_text)).perform(replaceText("password123"));
         onView(withId(R.id.realname_edit_text)).perform(replaceText("John"));
         onView(withId(R.id.surname1_edit_text)).perform(replaceText("Doe"));
         onView(withId(R.id.surname2_edit_text)).perform(replaceText("Smith"));
 
-        // Seleccionar tipo de usuario
+        // Seleccionar el tipus d'usuari
         onView(withId(R.id.user_type_spinner)).perform(click());
         onData(allOf(is(instanceOf(String.class)), is("ADMIN"))).perform(click());
 
-        // Crear usuario
+        // Fer clic al botó de crear
         onView(withId(R.id.create_button)).perform(click());
 
-        // Verificar mensaje de éxito
+        // Verificar que es mostra el missatge de confirmació
         onView(withText("Usuari creat correctament"))
                 .check(matches(ViewMatchers.isDisplayed()));
     }
 
-
+    /**
+     * Prova per verificar que no es permet la creació d'un usuari amb camps obligatoris buits.
+     * Es comprova que es mostra un missatge d'error adequat.
+     */
     @Test
     public void testCreateUserWithEmptyFields() throws InterruptedException {
         try {
-            // Lanzar la actividad
+            // Llançar l'activitat
             activityRule.launchActivity(new Intent());
 
-            // Simular entrada de datos incompleta
-            onView(withId(R.id.username_edit_text)).perform(replaceText("")); // Campo vacío
+            // Simular entrada de camps buits
+            onView(withId(R.id.username_edit_text)).perform(replaceText(""));
             onView(withId(R.id.password_edit_text)).perform(replaceText(""));
             onView(withId(R.id.realname_edit_text)).perform(replaceText(""));
             onView(withId(R.id.surname1_edit_text)).perform(replaceText(""));
             onView(withId(R.id.surname2_edit_text)).perform(replaceText(""));
 
-            // Click en el botón de creación
+            // Fer clic al botó de crear
             onView(withId(R.id.create_button)).perform(click());
 
-            // Validar que el mensaje de error se muestra
+            // Verificar que es mostra el missatge d'error
             onView(withText("Si us plau, omple tots els camps requerits."))
-                    .check(matches(isDisplayed())); // No necesitas un Matcher especial para Snackbar
+                    .check(matches(isDisplayed())); // No necessita un Matcher especial per Snackbar
         } catch (Exception e) {
-            Log.e("TestError", "Error while testing toast visibility: ", e);
-            throw e; // Re-throw para que el test falle y muestre el stacktrace
+            Log.e("TestError", "Error mentre es provava la visibilitat del Toast: ", e);
+            throw e; // Llançar l'excepció per fallar la prova i mostrar el rastre d'errors
         }
     }
-
-
 }
