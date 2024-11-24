@@ -14,6 +14,7 @@ import com.example.librarysolutionsdj.SessionManager.SessionManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import app.model.Author;
+import app.model.User;
 
 import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
@@ -103,14 +104,8 @@ public class GestioAutors extends AppCompatActivity {
                 // Lectura de l'objecte autores des del servidor
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
-                int authorCount = in.readInt(); // Nombre d'autors
-                authorList.clear();
-
-                // Processar la resposta del servidor per obtenir tots els autors
-                for (int i = 0; i < authorCount; i++) {
-                    Author author = (Author) in.readObject();
-                    authorList.add(author);
-                }
+                // Lee directamente la lista completa de autores
+                authorList = (ArrayList<Author>) in.readObject();
 
                 // Actualitzar la interfície d'usuari amb la llista d'autors
                 runOnUiThread(() -> {

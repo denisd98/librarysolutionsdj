@@ -13,6 +13,7 @@ import com.example.librarysolutionsdj.R;
 import com.example.librarysolutionsdj.SessionManager.SessionManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import app.model.Author;
 import app.model.Media;
 
 import java.io.ObjectInputStream;
@@ -54,14 +55,6 @@ public class GestioMedia extends AppCompatActivity {
         // Configurar el botó de tornar enrere
         backButton.setOnClickListener(v -> finish());
 
-        /*
-        // Configurar el botó flotant per afegir una nova obra
-        addMediaButton.setOnClickListener(v -> {
-            Intent intent = new Intent(GestioMedia.this, MediaCreate.class);
-            startActivity(intent);
-        });
-        */
-
         // Configurar el listener de clic per cada element de la llista
         mediaListView.setOnItemClickListener((parent, view, position, id) -> {
             Media selectedMedia = mediaList.get(position);
@@ -102,14 +95,9 @@ public class GestioMedia extends AppCompatActivity {
 
                 // Llegir la resposta del servidor
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-                int mediaCount = in.readInt(); // Nombre total d'obres
-                mediaList.clear();
 
-                // Afegir les obres a la llista
-                for (int i = 0; i < mediaCount; i++) {
-                    Media media = (Media) in.readObject();
-                    mediaList.add(media);
-                }
+                // Lee directamente la lista completa de autores
+                mediaList = (ArrayList<Media>) in.readObject();
 
                 // Actualitzar la interfície d'usuari
                 runOnUiThread(() -> {

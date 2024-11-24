@@ -101,14 +101,8 @@ public class GestioUsuaris extends AppCompatActivity {
                 // Lectura del objeto usuarios directamente
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
-                int userCount = in.readInt(); // Número total de usuarios
-                userList.clear();
-
-                // Recorremos la respuesta del servidor para obtener todos los usuarios
-                for (int i = 0; i < userCount; i++) {
-                    User user = (User) in.readObject();
-                    userList.add(user);
-                }
+                // Lee directamente la lista completa de usuarios
+                userList = (ArrayList<User>) in.readObject();
 
                 // Actualiza la interfaz de usuario con la lista de usuarios
                 runOnUiThread(() -> {

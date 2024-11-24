@@ -42,6 +42,7 @@ dependencies {
     implementation(libs.espresso.idling.resource)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation("com.google.code.gson:gson:2.8.9")
     testImplementation(libs.junit)
     testImplementation(libs.core)
     testImplementation(libs.ext.junit)

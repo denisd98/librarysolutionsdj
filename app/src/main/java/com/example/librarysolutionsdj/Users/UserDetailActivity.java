@@ -211,8 +211,7 @@ public class UserDetailActivity extends AppCompatActivity {
                 objectOut.flush();
 
                 runOnUiThread(() -> {
-                    Toast.makeText(UserDetailActivity.this, "Usuari eliminat correctament", Toast.LENGTH_SHORT).show();
-                    finish();
+                    Snackbar.make(findViewById(android.R.id.content), "Usuari eliminat correctament", Snackbar.LENGTH_SHORT).show();
                 });
 
             } catch (Exception e) {
