@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
+import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -27,10 +28,6 @@ import app.model.Author;
 import app.model.Media;
 import app.model.MediaType;
 
-/**
- * Activitat per gestionar els detalls d'una obra (Media) específica.
- * Permet veure, modificar i eliminar una obra registrada al sistema.
- */
 public class MediaDetailActivity extends AppCompatActivity {
 
     private EditText titleEditText, yearPublicationEditText, descriptionEditText;
@@ -43,18 +40,12 @@ public class MediaDetailActivity extends AppCompatActivity {
 
     private static final String TAG = "MediaDetailActivity";
 
-    /**
-     * S'executa quan es crea l'activitat. Configura la interfície d'usuari
-     * i inicialitza els camps amb la informació de l'obra seleccionada.
-     *
-     * @param savedInstanceState L'estat guardat de l'activitat.
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_detail);
 
-        // Inicialització de components visuals
+        // Inicialización de componentes visuales
         titleEditText = findViewById(R.id.title_edit_text);
         yearPublicationEditText = findViewById(R.id.year_publication_edit_text);
         descriptionEditText = findViewById(R.id.description_edit_text);
@@ -64,32 +55,104 @@ public class MediaDetailActivity extends AppCompatActivity {
         deleteButton = findViewById(R.id.delete_button);
         backButton = findViewById(R.id.back_button);
 
-        // Configurar l'Spinner per seleccionar el tipus de mitjà (MediaType)
+        // Configurar Spinner de tipos de media
         ArrayAdapter<MediaType> mediaTypeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, MediaType.values());
         mediaTypeSpinner.setAdapter(mediaTypeAdapter);
 
-        // Configurar el ListView per mostrar autors
+        // Configurar ListView de autores
         authorsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
         authorsListView.setAdapter(authorsAdapter);
 
-        // Rebre l'objecte Media des de l'Intent
-        selectedMedia = (Media) getIntent().getSerializableExtra("selectedMedia");
-
-        if (selectedMedia != null) {
-            populateFieldsWithSelectedMedia(); // Omplir els camps amb les dades de l'obra
+        // Obtener el ID de Media desde el Intent
+        int mediaId = getIntent().getIntExtra("MEDIA_ID", -1);
+        if (mediaId != -1) {
+            fetchMediaDetails(mediaId);
         } else {
-            Toast.makeText(this, "Media ID no vàlid o no trobat", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "ID de Media no válido", Toast.LENGTH_SHORT).show();
             finish();
         }
 
-        // Configurar els botons
+        // Configurar eventos de botones
         saveButton.setOnClickListener(v -> saveChanges());
         deleteButton.setOnClickListener(v -> deleteMedia());
         backButton.setOnClickListener(v -> finish());
     }
 
     /**
-     * Omple els camps del formulari amb la informació de l'obra seleccionada.
+     * Realiza una solicitud al servidor para obtener los detalles del Media.
+     */
+    private void fetchMediaDetails(int mediaId) {
+        Log.d(TAG, "Iniciando fetchMediaDetails para mediaId: " + mediaId);
+
+        new Thread(() -> {
+            try (Socket socket = new Socket("10.0.2.2", 12345); // Cambia la IP según sea necesario
+                 PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true);
+                 BufferedReader serverInput = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+
+                // Enviar el comando y mediaId como texto
+                String commandWithId = "GET_MEDIA_BY_ID " + mediaId;
+                commandOut.println(commandWithId);
+                Log.d(TAG, "Comando enviado: " + commandWithId);
+
+                // Leer la respuesta del servidor
+                Log.d(TAG, "Esperando respuesta del servidor...");
+                String response = serverInput.readLine();
+
+                // Agregar log para inspeccionar el JSON recibido
+                Log.d(TAG, "JSON recibido del servidor: " + response);
+
+                if (response.equals("NOT_FOUND")) {
+                    Log.w(TAG, "Media no encontrado");
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "Media no encontrado", Toast.LENGTH_SHORT).show();
+                        finish();
+                    });
+                } else {
+                    // Procesar respuesta (asumiendo que el servidor envía los datos del objeto en JSON)
+                    Media media = parseMediaResponse(response);
+                    if (media != null) {
+                        selectedMedia = media;
+                        Log.d(TAG, "Media recibido: " + media.getTitle() + " (ID: " + media.getWorkId() + ")");
+                        runOnUiThread(this::populateFieldsWithSelectedMedia);
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error durante fetchMediaDetails", e);
+                runOnUiThread(() -> Toast.makeText(this, "Error al cargar Media", Toast.LENGTH_SHORT).show());
+            }
+        }).start();
+
+        Log.d(TAG, "Hilo para fetchMediaDetails iniciado");
+    }
+
+
+    /**
+     * Método para procesar la respuesta del servidor.
+     * Asume que el servidor envía el objeto Media como un JSON string.
+     */
+    private Media parseMediaResponse(String response) {
+        try {
+            Media media = new Gson().fromJson(response, Media.class);
+            Log.d(TAG, "Media deserializado: " + media.getTitle());
+            if (media.getAuthors() != null) {
+                for (Author author : media.getAuthors()) {
+                    Log.d(TAG, "Autor recibido: " + author.getAuthorname() + " " + author.getSurname1());
+                }
+            } else {
+                Log.w(TAG, "No se recibieron autores para el Media");
+            }
+            return media;
+        } catch (Exception e) {
+            Log.e(TAG, "Error al parsear la respuesta del servidor: " + response, e);
+            return null;
+        }
+    }
+
+
+
+
+    /**
+     * Llena los campos del formulario con los datos del Media seleccionado.
      */
     private void populateFieldsWithSelectedMedia() {
         if (selectedMedia != null) {
@@ -98,89 +161,76 @@ public class MediaDetailActivity extends AppCompatActivity {
             descriptionEditText.setText(selectedMedia.getMedia_description());
             mediaTypeSpinner.setSelection(selectedMedia.getMediaType().ordinal());
 
-            // Processar i mostrar autors
+            // Mostrar lista de autores
             authorsAdapter.clear();
             if (selectedMedia.getAuthors() != null && !selectedMedia.getAuthors().isEmpty()) {
                 for (Author author : selectedMedia.getAuthors()) {
                     authorsAdapter.add(author.getAuthorname() + " " + author.getSurname1());
                 }
             } else {
-                authorsAdapter.add("No hi ha autors assignats");
+                authorsAdapter.add("No hay autores asignados");
             }
             authorsAdapter.notifyDataSetChanged();
         }
     }
 
     /**
-     * Desa els canvis realitzats a l'obra seleccionada al servidor.
+     * Guarda los cambios realizados en el Media.
      */
     private void saveChanges() {
-        if (titleEditText.getText().toString().isEmpty()) {
-            Toast.makeText(this, "El títol és obligatori", Toast.LENGTH_SHORT).show();
+        String title = titleEditText.getText().toString();
+        String year = yearPublicationEditText.getText().toString();
+        String description = descriptionEditText.getText().toString();
+        MediaType mediaType = (MediaType) mediaTypeSpinner.getSelectedItem();
+
+        if (title.isEmpty() || year.isEmpty() || description.isEmpty()) {
+            Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        try {
-            int year = Integer.parseInt(yearPublicationEditText.getText().toString());
-            selectedMedia.setYearPublication(year);
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "L'any ha de ser un número vàlid", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        selectedMedia.setTitle(titleEditText.getText().toString());
-        selectedMedia.setMedia_description(descriptionEditText.getText().toString());
-        selectedMedia.setMediaType((MediaType) mediaTypeSpinner.getSelectedItem());
 
         new Thread(() -> {
             try (Socket socket = new Socket("10.0.2.2", 12345);
-                 ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-                 ObjectInputStream objectIn = new ObjectInputStream(socket.getInputStream())) {
+                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
 
-                // Enviar comandament i dades com a objectes
-                objectOut.writeObject("MODIFY_MEDIA"); // Comandament
-                objectOut.writeObject(selectedMedia); // Dades actualitzades
-                objectOut.flush();
+                // Actualizar el objeto Media
+                selectedMedia.setTitle(title);
+                selectedMedia.setYearPublication(Integer.parseInt(year));
+                selectedMedia.setMedia_description(description);
+                selectedMedia.setMediaType(mediaType);
 
-                // Llegir resposta del servidor
-                String response = (String) objectIn.readObject();
+                // Enviar comando y objeto actualizado
+                out.writeObject("MODIFY_MEDIA");
+                out.writeObject(selectedMedia);
+                out.flush();
 
-                if ("MODIFY_MEDIA_OK".equals(response)) {
-                    runOnUiThread(() -> Toast.makeText(this, "Canvis guardats correctament", Toast.LENGTH_SHORT).show());
-                } else {
-                    runOnUiThread(() -> Toast.makeText(this, "Error al guardar canvis", Toast.LENGTH_SHORT).show());
-                }
-
+                runOnUiThread(() -> Toast.makeText(this, "Media guardado con éxito", Toast.LENGTH_SHORT).show());
             } catch (Exception e) {
-                Log.e(TAG, "Error al guardar canvis", e);
-                runOnUiThread(() -> Toast.makeText(this, "Error al guardar canvis: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                Log.e(TAG, "Error al guardar Media", e);
+                runOnUiThread(() -> Toast.makeText(this, "Error al guardar Media", Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
 
     /**
-     * Elimina l'obra seleccionada del servidor.
+     * Elimina el Media seleccionado.
      */
     private void deleteMedia() {
         new Thread(() -> {
             try (Socket socket = new Socket("10.0.2.2", 12345);
-                 PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
+                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
 
-                commandOut.println("DELETE_MEDIA");
-                commandOut.flush();
-
-                ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-                objectOut.writeInt(selectedMedia.getWorkId());
-                objectOut.flush();
+                // Enviar comando y el ID
+                out.writeObject("DELETE_MEDIA");
+                out.writeInt(selectedMedia.getWorkId());
+                out.flush();
 
                 runOnUiThread(() -> {
-                    Toast.makeText(this, "Media eliminada correctament", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Media eliminado con éxito", Toast.LENGTH_SHORT).show();
                     finish();
                 });
-
             } catch (Exception e) {
                 Log.e(TAG, "Error al eliminar Media", e);
-                runOnUiThread(() -> Toast.makeText(this, "Error al eliminar Media: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(this, "Error al eliminar Media", Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
