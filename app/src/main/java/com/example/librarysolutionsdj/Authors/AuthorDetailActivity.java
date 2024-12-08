@@ -8,15 +8,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
-import com.example.librarysolutionsdj.Users.MockServer;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -33,7 +29,7 @@ public class AuthorDetailActivity extends AppCompatActivity {
     private Button saveButton, deleteButton;
     private ImageButton backButton;
     private Author selectedAuthor;
-    private boolean isTestEnvironment = false; // Bandera per indicar si l'entorn és de prova
+    private static final String TAG = "AuthorDetailActivity";
 
     /**
      * Inicialitza la interfície d'usuari de l'activitat i carrega les dades de l'autor seleccionat.
@@ -44,7 +40,6 @@ public class AuthorDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_author_detail);
-        EdgeToEdge.enable(this);
 
         // Obtenir l'autor seleccionat
         selectedAuthor = (Author) getIntent().getSerializableExtra("selectedAuthor");
@@ -86,35 +81,26 @@ public class AuthorDetailActivity extends AppCompatActivity {
     }
 
     /**
-     * Configura l'entorn de prova.
-     *
-     * @param isTestEnvironment Indica si l'activitat s'executa en un entorn de prova.
-     */
-    public void setTestEnvironment(boolean isTestEnvironment) {
-        this.isTestEnvironment = isTestEnvironment;
-    }
-
-    /**
      * Desa els canvis realitzats a l'autor.
      * Valida els camps obligatoris i actualitza les dades en el servidor.
      */
     private void saveChanges() {
-        // Validar camps obligatoris
+        // Validar campos obligatorios
         if (authorNameEditText.getText().toString().isEmpty() || nationalityEditText.getText().toString().isEmpty()) {
-            Snackbar.make(findViewById(android.R.id.content), "Nom i Nacionalitat són obligatoris", Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(findViewById(android.R.id.content), "Nombre y nacionalidad son obligatorios", Snackbar.LENGTH_SHORT).show();
             return;
         }
 
-        // Validar l'any de naixement com a número
+        // Validar el año de nacimiento como número
         int yearBirth;
         try {
             yearBirth = Integer.parseInt(yearBirthEditText.getText().toString());
         } catch (NumberFormatException e) {
-            Snackbar.make(findViewById(android.R.id.content), "Any de naixement ha de ser un número", Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(findViewById(android.R.id.content), "El año de nacimiento debe ser un número", Snackbar.LENGTH_SHORT).show();
             return;
         }
 
-        // Actualitzar l'objecte autor amb les noves dades
+        // Actualizar el objeto Author con los nuevos datos
         selectedAuthor.setAuthorname(authorNameEditText.getText().toString());
         selectedAuthor.setSurname1(surname1EditText.getText().toString());
         selectedAuthor.setSurname2(surname2EditText.getText().toString());
@@ -122,43 +108,32 @@ public class AuthorDetailActivity extends AppCompatActivity {
         selectedAuthor.setNationality(nationalityEditText.getText().toString());
         selectedAuthor.setYearbirth(yearBirth);
 
-        // Enviar les dades al servidor o simular resposta en entorn de prova
+        // Enviar datos al servidor
         new Thread(() -> {
-            try {
-                String response;
-                if (isTestEnvironment) {
-                    response = MockServer.simulateModifyAuthorRequest();
-                } else {
-                    try (Socket socket = new Socket("10.0.2.2", 12345);
-                         PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
+            try (Socket socket = new Socket("10.0.2.2", 12345);
+                 PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
 
-                        commandOut.println("MODIFY_AUTHOR");
-                        commandOut.flush();
+                // Enviar el comando como texto
+                commandOut.println("MODIFY_AUTHOR");
+                Log.d(TAG, "Comando enviado: MODIFY_AUTHOR");
+                commandOut.flush();
 
-                        ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-                        objectOut.writeInt(selectedAuthor.getAuthorid());
-                        objectOut.writeObject(selectedAuthor);
-                        objectOut.flush();
+                ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
+                // Enviar el objeto Author
+                objectOut.writeObject(selectedAuthor);
+                objectOut.flush();
+                Log.d(TAG, "Objeto Author enviado: " + selectedAuthor.getAuthorname());
 
-                        BufferedReader responseReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        response = responseReader.readLine();
-                    }
-                }
-
-                if ("MODIFY_AUTHOR_OK".equals(response)) {
-                    runOnUiThread(() -> {
-                        Snackbar.make(findViewById(android.R.id.content), "Canvis aplicats satisfactoriament", Snackbar.LENGTH_LONG).show();
-                        Intent resultIntent = new Intent();
-                        resultIntent.putExtra("updatedAuthor", selectedAuthor);
-                        setResult(RESULT_OK, resultIntent);
-                    });
-                } else {
-                    runOnUiThread(() -> Toast.makeText(AuthorDetailActivity.this, "Error guardant canvis", Toast.LENGTH_SHORT).show());
-                }
-
+                // Confirmación de éxito
+                runOnUiThread(() -> {
+                    Snackbar.make(findViewById(android.R.id.content), "Canvis aplicats correctament", Snackbar.LENGTH_SHORT).show();
+                    Intent resultIntent = new Intent();
+                    resultIntent.putExtra("updatedAuthor", selectedAuthor);
+                    setResult(RESULT_OK, resultIntent);
+                });
             } catch (Exception e) {
-                e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(AuthorDetailActivity.this, "Error guardant canvis: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                Log.e(TAG, "Error al modificar el autor", e);
+                runOnUiThread(() -> Toast.makeText(this, "Error al modificar el autor: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
@@ -176,12 +151,14 @@ public class AuthorDetailActivity extends AppCompatActivity {
                 objectOut.writeInt(selectedAuthor.getAuthorid());
                 objectOut.flush();
 
+                Log.d(TAG, "Autor eliminat: " + selectedAuthor.getAuthorid());
+
                 runOnUiThread(() -> {
-                    Toast.makeText(AuthorDetailActivity.this, "Autor eliminat satisfactoriament", Toast.LENGTH_SHORT).show();
-                    finish();
+                    Snackbar.make(findViewById(android.R.id.content), "Autor eliminat correctament", Snackbar.LENGTH_SHORT).show();
                 });
 
             } catch (Exception e) {
+                Log.e(TAG, "Error eliminant autor", e);
                 runOnUiThread(() -> Toast.makeText(AuthorDetailActivity.this, "Error eliminant autor: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();

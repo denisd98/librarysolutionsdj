@@ -59,7 +59,7 @@ public class GestioMedia extends AppCompatActivity {
         mediaListView.setOnItemClickListener((parent, view, position, id) -> {
             Media selectedMedia = mediaList.get(position);
             Intent intent = new Intent(GestioMedia.this, MediaDetailActivity.class);
-            intent.putExtra("MEDIA_ID", selectedMedia.getWorkId()); // Passar l'objecte Media complet
+            intent.putExtra("selectedMedia", selectedMedia); // Passar l'objecte Media complet
             startActivity(intent);
         });
     }

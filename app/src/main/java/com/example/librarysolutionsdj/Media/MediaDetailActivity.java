@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import app.model.Author;
 import app.model.Media;
 import app.model.MediaType;
+import app.model.User;
 
 public class MediaDetailActivity extends AppCompatActivity {
 
@@ -44,6 +46,8 @@ public class MediaDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_detail);
+
+        selectedMedia = (Media) getIntent().getSerializableExtra("selectedMedia");
 
         // Inicialización de componentes visuales
         titleEditText = findViewById(R.id.title_edit_text);
@@ -63,93 +67,18 @@ public class MediaDetailActivity extends AppCompatActivity {
         authorsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
         authorsListView.setAdapter(authorsAdapter);
 
-        // Obtener el ID de Media desde el Intent
-        int mediaId = getIntent().getIntExtra("MEDIA_ID", -1);
-        if (mediaId != -1) {
-            fetchMediaDetails(mediaId);
-        } else {
-            Toast.makeText(this, "ID de Media no válido", Toast.LENGTH_SHORT).show();
-            finish();
+
+        if (selectedMedia != null){
+            populateFieldsWithSelectedMedia();
         }
+
+
 
         // Configurar eventos de botones
         saveButton.setOnClickListener(v -> saveChanges());
         deleteButton.setOnClickListener(v -> deleteMedia());
         backButton.setOnClickListener(v -> finish());
     }
-
-    /**
-     * Realiza una solicitud al servidor para obtener los detalles del Media.
-     */
-    private void fetchMediaDetails(int mediaId) {
-        Log.d(TAG, "Iniciando fetchMediaDetails para mediaId: " + mediaId);
-
-        new Thread(() -> {
-            try (Socket socket = new Socket("10.0.2.2", 12345); // Cambia la IP según sea necesario
-                 PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true);
-                 BufferedReader serverInput = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-
-                // Enviar el comando y mediaId como texto
-                String commandWithId = "GET_MEDIA_BY_ID " + mediaId;
-                commandOut.println(commandWithId);
-                Log.d(TAG, "Comando enviado: " + commandWithId);
-
-                // Leer la respuesta del servidor
-                Log.d(TAG, "Esperando respuesta del servidor...");
-                String response = serverInput.readLine();
-
-                // Agregar log para inspeccionar el JSON recibido
-                Log.d(TAG, "JSON recibido del servidor: " + response);
-
-                if (response.equals("NOT_FOUND")) {
-                    Log.w(TAG, "Media no encontrado");
-                    runOnUiThread(() -> {
-                        Toast.makeText(this, "Media no encontrado", Toast.LENGTH_SHORT).show();
-                        finish();
-                    });
-                } else {
-                    // Procesar respuesta (asumiendo que el servidor envía los datos del objeto en JSON)
-                    Media media = parseMediaResponse(response);
-                    if (media != null) {
-                        selectedMedia = media;
-                        Log.d(TAG, "Media recibido: " + media.getTitle() + " (ID: " + media.getWorkId() + ")");
-                        runOnUiThread(this::populateFieldsWithSelectedMedia);
-                    }
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Error durante fetchMediaDetails", e);
-                runOnUiThread(() -> Toast.makeText(this, "Error al cargar Media", Toast.LENGTH_SHORT).show());
-            }
-        }).start();
-
-        Log.d(TAG, "Hilo para fetchMediaDetails iniciado");
-    }
-
-
-    /**
-     * Método para procesar la respuesta del servidor.
-     * Asume que el servidor envía el objeto Media como un JSON string.
-     */
-    private Media parseMediaResponse(String response) {
-        try {
-            Media media = new Gson().fromJson(response, Media.class);
-            Log.d(TAG, "Media deserializado: " + media.getTitle());
-            if (media.getAuthors() != null) {
-                for (Author author : media.getAuthors()) {
-                    Log.d(TAG, "Autor recibido: " + author.getAuthorname() + " " + author.getSurname1());
-                }
-            } else {
-                Log.w(TAG, "No se recibieron autores para el Media");
-            }
-            return media;
-        } catch (Exception e) {
-            Log.e(TAG, "Error al parsear la respuesta del servidor: " + response, e);
-            return null;
-        }
-    }
-
-
-
 
     /**
      * Llena los campos del formulario con los datos del Media seleccionado.
@@ -190,7 +119,12 @@ public class MediaDetailActivity extends AppCompatActivity {
 
         new Thread(() -> {
             try (Socket socket = new Socket("10.0.2.2", 12345);
-                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
+                 PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
+                commandOut.println("MODIFY_MEDIA");
+                Log.d(TAG, "Comando enviado: MODIFY_MEDIA");
+                commandOut.flush();
+
+                ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
 
                 // Actualizar el objeto Media
                 selectedMedia.setTitle(title);
@@ -198,15 +132,15 @@ public class MediaDetailActivity extends AppCompatActivity {
                 selectedMedia.setMedia_description(description);
                 selectedMedia.setMediaType(mediaType);
 
-                // Enviar comando y objeto actualizado
-                out.writeObject("MODIFY_MEDIA");
-                out.writeObject(selectedMedia);
-                out.flush();
+                // Enviar el objeto Author
+                objectOut.writeObject(selectedMedia);
+                objectOut.flush();
+                Log.d(TAG, "Objeto Media enviado.");
 
-                runOnUiThread(() -> Toast.makeText(this, "Media guardado con éxito", Toast.LENGTH_SHORT).show());
+                Snackbar.make(findViewById(android.R.id.content), "Canvis aplicats correctament", Snackbar.LENGTH_SHORT).show();
             } catch (Exception e) {
-                Log.e(TAG, "Error al guardar Media", e);
-                runOnUiThread(() -> Toast.makeText(this, "Error al guardar Media", Toast.LENGTH_SHORT).show());
+                Log.e(TAG, "Error al guardar el Media", e);
+                runOnUiThread(() -> Toast.makeText(this, "Error al guardant Obra", Toast.LENGTH_SHORT).show());
             }
         }).start();
     }

@@ -117,18 +117,8 @@ public class AuthorCreate extends AppCompatActivity {
                         objectOut.writeObject(newAuthor);
                         objectOut.flush();
 
-                        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        response = in.readLine();
+                        Snackbar.make(findViewById(android.R.id.content), "Autor creat correctament", Snackbar.LENGTH_LONG).show();
                     }
-                }
-
-                // Comprovar la resposta del servidor
-                if ("AUTHOR_CREATED".equals(response)) {
-                    runOnUiThread(() -> {
-                        Snackbar.make(findViewById(android.R.id.content), "Autor creat correctament", Snackbar.LENGTH_SHORT).show();
-                    });
-                } else {
-                    runOnUiThread(() -> Toast.makeText(AuthorCreate.this, "Error creant autor: " + response, Toast.LENGTH_SHORT).show());
                 }
 
             } catch (Exception e) {

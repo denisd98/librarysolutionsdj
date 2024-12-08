@@ -174,25 +174,18 @@ public class UserDetailActivity extends AppCompatActivity {
                          PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
 
                         commandOut.println("MODIFY_USER");
+                        commandOut.flush();
                         ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
                         objectOut.writeInt(selectedUser.getId());
                         objectOut.writeObject(selectedUser);
                         objectOut.flush();
 
-                        BufferedReader responseReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        response = responseReader.readLine();
+                        Snackbar.make(findViewById(android.R.id.content), "Canvis aplicats satisfactòriament", Snackbar.LENGTH_LONG).show();
                     }
                 }
-
-                if ("MODIFY_USER_OK".equals(response)) {
-                    runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "Canvis aplicats satisfactòriament", Snackbar.LENGTH_LONG).show());
-                } else {
-                    runOnUiThread(() -> Toast.makeText(UserDetailActivity.this, "Error guardant els canvis", Toast.LENGTH_SHORT).show());
-                }
-
             } catch (Exception e) {
                 Log.e("UserDetailActivity", "Error guardant els canvis", e);
-                runOnUiThread(() -> Toast.makeText(UserDetailActivity.this, "Error guardant els canvis: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                Snackbar.make(findViewById(android.R.id.content), "ERROR guardant canvis", Snackbar.LENGTH_LONG).show();
             }
         }).start();
     }

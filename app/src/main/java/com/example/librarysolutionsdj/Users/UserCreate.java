@@ -123,20 +123,9 @@ public class UserCreate extends AppCompatActivity {
                         objectOut.writeObject(newUser);
                         objectOut.flush();
 
-                        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        response = in.readLine();
+                        Snackbar.make(findViewById(android.R.id.content), "Usuari creat correctament", Snackbar.LENGTH_LONG).show();
                     }
                 }
-
-                // Processar resposta del servidor
-                if ("USER_CREATED".equals(response)) {
-                    runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "Usuari creat correctament", Snackbar.LENGTH_SHORT).show());
-                } else if (response != null && (response.contains("unique") || response.contains("duplicate"))) {
-                    runOnUiThread(() -> Toast.makeText(UserCreate.this, "El nom d'usuari ja existeix!", Toast.LENGTH_LONG).show());
-                } else {
-                    runOnUiThread(() -> Toast.makeText(UserCreate.this, "Error creant l'usuari: " + response, Toast.LENGTH_SHORT).show());
-                }
-
             } catch (Exception e) {
                 Log.e("UserCreate", "Error creant l'usuari", e);
                 runOnUiThread(() -> Toast.makeText(UserCreate.this, "Error creant l'usuari: " + e.getMessage(), Toast.LENGTH_SHORT).show());
