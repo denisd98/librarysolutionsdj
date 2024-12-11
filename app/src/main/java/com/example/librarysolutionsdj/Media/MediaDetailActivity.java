@@ -39,6 +39,7 @@ public class MediaDetailActivity extends AppCompatActivity {
     private ImageButton backButton;
     private Media selectedMedia;
     private ArrayAdapter<String> authorsAdapter;
+    private static final int REQUEST_SELECT_AUTHORS = 1;
 
     private static final String TAG = "MediaDetailActivity";
 
@@ -67,6 +68,15 @@ public class MediaDetailActivity extends AppCompatActivity {
         authorsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
         authorsListView.setAdapter(authorsAdapter);
 
+        Button selectAuthorButton = findViewById(R.id.select_author_button);
+
+        selectAuthorButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AuthorSelectionActivity.class);
+            // Pasar autores ya seleccionados
+            intent.putExtra("selectedAuthors", new ArrayList<>(selectedMedia.getAuthors()));
+            startActivityForResult(intent, REQUEST_SELECT_AUTHORS);
+        });
+
 
         if (selectedMedia != null){
             populateFieldsWithSelectedMedia();
@@ -79,6 +89,43 @@ public class MediaDetailActivity extends AppCompatActivity {
         deleteButton.setOnClickListener(v -> deleteMedia());
         backButton.setOnClickListener(v -> finish());
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_SELECT_AUTHORS) {
+            if (resultCode == RESULT_OK) {
+                ArrayList<Author> returnedAuthors = (ArrayList<Author>) data.getSerializableExtra("selectedAuthors");
+                ArrayList<Author> deselectedAuthors = (ArrayList<Author>) data.getSerializableExtra("deselectedAuthors");
+
+                if (selectedMedia.getAuthors() == null) {
+                    // Inicializar la lista si está vacía
+                    selectedMedia.setAuthors(new ArrayList<>());
+                }
+
+                if (returnedAuthors != null) {
+                    for (Author author : returnedAuthors) {
+                        if (!selectedMedia.getAuthors().contains(author)) {
+                            selectedMedia.getAuthors().add(author); // Añadir nuevos autores
+                        }
+                    }
+                }
+
+                if (deselectedAuthors != null) {
+                    selectedMedia.getAuthors().removeAll(deselectedAuthors); // Eliminar autores desmarcados
+                }
+
+                // Actualizar la UI con los cambios
+                populateFieldsWithSelectedMedia();
+            } else if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(this, "No se realizaron cambios en los autores", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+
+
 
     /**
      * Llena los campos del formulario con los datos del Media seleccionado.
@@ -140,7 +187,7 @@ public class MediaDetailActivity extends AppCompatActivity {
                 Snackbar.make(findViewById(android.R.id.content), "Canvis aplicats correctament", Snackbar.LENGTH_SHORT).show();
             } catch (Exception e) {
                 Log.e(TAG, "Error al guardar el Media", e);
-                runOnUiThread(() -> Toast.makeText(this, "Error al guardant Obra", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(this, "Error al guardar la obra", Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
