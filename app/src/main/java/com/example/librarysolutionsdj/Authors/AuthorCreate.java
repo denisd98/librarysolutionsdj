@@ -73,7 +73,7 @@ public class AuthorCreate extends AppCompatActivity {
      * Comprova la validesa dels camps obligatoris i envia les dades al servidor.
      */
     private void createAuthor() {
-        // Recollir dades del formulari
+        // Recoger datos del formulario
         String authorName = authorNameEditText.getText().toString().trim();
         String surname1 = surname1EditText.getText().toString().trim();
         String surname2 = surname2EditText.getText().toString().trim();
@@ -81,33 +81,35 @@ public class AuthorCreate extends AppCompatActivity {
         String nationality = nationalityEditText.getText().toString().trim();
         String yearBirthStr = yearBirthEditText.getText().toString().trim();
 
-        // Validació de camps obligatoris
+        // Validación de campos obligatorios
         if (authorName.isEmpty() || nationality.isEmpty() || yearBirthStr.isEmpty()) {
-            Snackbar.make(findViewById(android.R.id.content), "Si us plau, omple tots els camps obligatoris.", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(findViewById(android.R.id.content), "Por favor, rellena todos los campos obligatorios.", Snackbar.LENGTH_LONG).show();
             return;
+        }
+
+        if (biography.isEmpty()) {
+            biography = "Sin biografía"; // Asignar un valor predeterminado
         }
 
         int yearBirth;
         try {
             yearBirth = Integer.parseInt(yearBirthStr);
         } catch (NumberFormatException e) {
-            Snackbar.make(findViewById(android.R.id.content), "L'any de naixement ha de ser un número.", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(findViewById(android.R.id.content), "El año de nacimiento debe ser un número.", Snackbar.LENGTH_LONG).show();
             return;
         }
 
-        // Crear objecte Autor
+        // Crear objeto Author
         Author newAuthor = new Author(0, authorName, surname1, surname2, biography, nationality, yearBirth);
 
-        // Enviar les dades al servidor en un fil independent
+        // Enviar los datos al servidor en un hilo independiente
         new Thread(() -> {
             try {
-                String response;
-
                 if (isTestEnvironment) {
-                    // Simulació en entorn de prova
-                    response = MockServer.simulateCreateAuthorRequest();
+                    // Simulación en entorno de prueba
+                    MockServer.simulateCreateAuthorRequest();
                 } else {
-                    // Connexió real amb el servidor
+                    // Conexión real con el servidor
                     try (Socket socket = new Socket("10.0.2.2", 12345);
                          PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
 
@@ -117,14 +119,14 @@ public class AuthorCreate extends AppCompatActivity {
                         objectOut.writeObject(newAuthor);
                         objectOut.flush();
 
-                        Snackbar.make(findViewById(android.R.id.content), "Autor creat correctament", Snackbar.LENGTH_LONG).show();
+                        runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "Autor creado correctamente", Snackbar.LENGTH_LONG).show());
                     }
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(AuthorCreate.this, "Error creant autor: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(AuthorCreate.this, "Error creando autor: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
+
 }

@@ -62,6 +62,11 @@ public class GestioMedia extends AppCompatActivity {
             intent.putExtra("selectedMedia", selectedMedia); // Passar l'objecte Media complet
             startActivity(intent);
         });
+
+        addMediaButton.setOnClickListener(v -> {
+            Intent intent = new Intent(GestioMedia.this, MediaCreate.class);
+            startActivity(intent);
+        });
     }
 
     /**

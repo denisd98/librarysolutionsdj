@@ -198,16 +198,18 @@ public class MediaDetailActivity extends AppCompatActivity {
     private void deleteMedia() {
         new Thread(() -> {
             try (Socket socket = new Socket("10.0.2.2", 12345);
-                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
+                 PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
 
                 // Enviar comando y el ID
-                out.writeObject("DELETE_MEDIA");
-                out.writeInt(selectedMedia.getWorkId());
-                out.flush();
+                commandOut.println("DELETE_MEDIA");
+                ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
+                objectOut.writeInt(selectedMedia.getWorkId());
+                objectOut.flush();
+
+                Log.d(TAG, "Obra eliminada: " + selectedMedia.getWorkId());
 
                 runOnUiThread(() -> {
-                    Toast.makeText(this, "Media eliminado con éxito", Toast.LENGTH_SHORT).show();
-                    finish();
+                    Snackbar.make(findViewById(android.R.id.content), "Obra eliminada amb èxit", Snackbar.LENGTH_SHORT).show();
                 });
             } catch (Exception e) {
                 Log.e(TAG, "Error al eliminar Media", e);
