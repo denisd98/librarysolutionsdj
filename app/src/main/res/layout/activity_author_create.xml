@@ -12,6 +12,8 @@
         android:layout_marginTop="12dp"
         android:background="#A4A4A4"
         android:tint="#FFFFFF"
+        app:layout_constraintEnd_toStartOf="@+id/author_create_title"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@android:drawable/ic_menu_revert" />
@@ -23,7 +25,7 @@
         android:layout_marginTop="12dp"
         android:fontFamily="monospace"
         android:text="Crear Autor"
-        android:textSize="28sp"
+        android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -33,45 +35,50 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Nom d'autor *"
-        app:layout_constraintTop_toBottomOf="@+id/author_create_title"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/author_create_title" />
 
     <EditText
         android:id="@+id/surname1_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Primer Cognom"
-        app:layout_constraintTop_toBottomOf="@+id/author_name_edit_text"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/author_name_edit_text" />
 
     <EditText
         android:id="@+id/surname2_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Segon Cognom"
-        app:layout_constraintTop_toBottomOf="@+id/surname1_edit_text"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/surname1_edit_text" />
 
     <EditText
         android:id="@+id/biography_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Biografia"
-        app:layout_constraintTop_toBottomOf="@+id/surname2_edit_text"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/surname2_edit_text" />
 
     <EditText
         android:id="@+id/nationality_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Nacionalitat *"
-        app:layout_constraintTop_toBottomOf="@+id/biography_edit_text"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/biography_edit_text" />
 
     <EditText
         android:id="@+id/year_birth_edit_text"
@@ -79,17 +86,20 @@
         android:layout_height="wrap_content"
         android:hint="Any de Naixement *"
         android:inputType="number"
-        app:layout_constraintTop_toBottomOf="@+id/nationality_edit_text"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/nationality_edit_text" />
 
     <Button
         android:id="@+id/create_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="#3FA9F5"
+        android:fontFamily="monospace"
         android:text="Crear Autor"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

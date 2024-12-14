@@ -9,13 +9,13 @@
 
     <ImageButton
         android:id="@+id/back_button"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="40dp"
+        android:layout_height="41dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="16dp"
         android:layout_marginBottom="20dp"
         android:background="#A4A4A4"
         android:tint="#FFFFFF"
@@ -34,8 +34,9 @@
         android:layout_marginTop="12dp"
         android:fontFamily="monospace"
         android:text="Crear usuari"
-        android:textSize="28sp"
+        android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.591"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -45,10 +46,10 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:hint="Nom d'usuari *"
-        android:textColorHint="#FF0000"
+        android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/password_edit_text"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView7"
         app:layout_constraintVertical_bias="1.0" />
@@ -67,48 +68,49 @@
         android:id="@+id/surname2_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="4dp"
         android:hint="Segon Cognom"
+        android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/user_type_spinner"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
         android:id="@+id/realname_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="4dp"
         android:hint="Nom real *"
-        android:textColorHint="#FF0000"
+        android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/surname1_edit_text"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
         android:id="@+id/surname1_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="4dp"
         android:hint="Primer Cognom *"
-        android:textColorHint="#F40000"
+        android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/surname2_edit_text"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
         android:id="@+id/password_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="4dp"
         android:hint="Contrasenya *"
         android:inputType="textPassword"
-        android:textColorHint="#FF0000"
+        android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/realname_edit_text"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
@@ -116,7 +118,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="#3FA9F5"
+        android:fontFamily="monospace"
         android:text="Crear usuari"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"

@@ -10,43 +10,47 @@
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="88dp"
         android:layout_marginTop="12dp"
-        android:layout_marginBottom="20dp"
         android:fontFamily="monospace"
         android:text="Editar Media"
-        android:textSize="28sp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textSize="34sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
         android:id="@+id/back_button"
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_marginTop="12dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="36dp"
         android:background="#A4A4A4"
         android:tint="#FFFFFF"
+        app:layout_constraintEnd_toStartOf="@+id/textView4"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@android:drawable/ic_menu_revert" />
 
     <EditText
         android:id="@+id/title_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="44dp"
         android:hint="Títol"
-        app:layout_constraintTop_toBottomOf="@id/textView4"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView4" />
 
     <EditText
         android:id="@+id/year_publication_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:hint="Any de Publicació"
         android:inputType="number"
-        app:layout_constraintTop_toBottomOf="@id/title_edit_text"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title_edit_text" />
 
     <Spinner
         android:id="@+id/media_type_spinner"
@@ -62,8 +66,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:hint="Descripció"
-        app:layout_constraintTop_toBottomOf="@id/media_type_spinner"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/media_type_spinner" />
 
     <ListView
         android:id="@+id/authors_list_view"
@@ -77,19 +82,21 @@
         android:id="@+id/save_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:backgroundTint="#3FA9F5"
         android:text="Guardar canvis"
-        app:layout_constraintTop_toBottomOf="@id/authors_list_view"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/authors_list_view" />
 
     <Button
         android:id="@+id/delete_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="72dp"
+        android:layout_marginTop="48dp"
         android:backgroundTint="#EB0000"
         android:text="Esborrar Media"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/save_button" />
 
@@ -100,6 +107,7 @@
         android:layout_marginTop="76dp"
         android:backgroundTint="#3FA9F5"
         android:text="Seleccionar Autores"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/authors_list_view" />
 

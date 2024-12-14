@@ -15,7 +15,12 @@
         android:id="@+id/confirm_selection_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Confirmar selección"
+        android:backgroundTint="#3FA9F5"
+        android:fontFamily="monospace"
+        android:text="Confirmar selecció"
+        android:textColor="#fff"
+        android:textColorLink="#fff"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

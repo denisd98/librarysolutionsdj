@@ -15,7 +15,7 @@
         android:layout_marginBottom="20dp"
         android:fontFamily="monospace"
         android:text="Editar usuari"
-        android:textSize="28sp"
+        android:textSize="34sp"
         app:layout_constraintBottom_toTopOf="@+id/user_list_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
@@ -25,8 +25,8 @@
 
     <ImageButton
         android:id="@+id/back_button"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="44dp"
+        android:layout_height="42dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
@@ -48,6 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Nom d'usuari"
+        android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/realname_edit_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -55,24 +56,26 @@
         app:layout_constraintTop_toBottomOf="@+id/textView4"
         app:layout_constraintVertical_bias="1.0" />
 
-    <Spinner
-        android:id="@+id/user_type_spinner"
+    <EditText
+        android:id="@+id/surname1_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="188dp"
-        android:entries="@array/user_types"
-        app:layout_constraintBottom_toTopOf="@+id/save_button"
+        android:layout_marginBottom="8dp"
+        android:hint="Primer Cognom"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/surname2_edit_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <EditText
-        android:id="@+id/password_edit_text"
+    <Spinner
+        android:id="@+id/user_type_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:hint="Contrasenya"
-        app:layout_constraintBottom_toTopOf="@+id/surname1_edit_text"
+        android:layout_marginBottom="204dp"
+        android:entries="@array/user_types"
+        android:scrollbarSize="4dp"
+        app:layout_constraintBottom_toTopOf="@+id/save_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
@@ -81,8 +84,9 @@
         android:id="@+id/surname2_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="36dp"
+        android:layout_marginBottom="8dp"
         android:hint="Segon Cognom"
+        android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/user_type_spinner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -92,20 +96,22 @@
         android:id="@+id/realname_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="8dp"
         android:hint="Nom real"
+        android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/password_edit_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
-        android:id="@+id/surname1_edit_text"
+        android:id="@+id/password_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        android:hint="Primer Cognom"
-        app:layout_constraintBottom_toTopOf="@+id/surname2_edit_text"
+        android:layout_marginBottom="4dp"
+        android:hint="Contrasenya"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/surname1_edit_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
@@ -115,25 +121,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="#3FA9F5"
+        android:fontFamily="monospace"
         android:text="Guardar canvis"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.913" />
+        app:layout_constraintVertical_bias="0.907" />
 
     <Button
         android:id="@+id/delete_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="#EB0000"
+        android:fontFamily="monospace"
         android:text="Esborrar l'usuari"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toBottomOf="@+id/save_button"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

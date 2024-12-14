@@ -9,7 +9,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Author Name"
-        android:textSize="20sp"
+        android:textColor="#FF5F28"
+        android:textSize="24sp"
         android:textStyle="bold" />
 
     <TextView
