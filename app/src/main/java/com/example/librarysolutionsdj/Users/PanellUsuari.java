@@ -13,6 +13,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.librarysolutionsdj.Authors.GestioAutors;
+import com.example.librarysolutionsdj.Loans.BibliotecaActivity;
 import com.example.librarysolutionsdj.Login.LoginActivity;
 import com.example.librarysolutionsdj.Media.GestioMedia;
 import com.example.librarysolutionsdj.R;
@@ -98,6 +99,12 @@ public class PanellUsuari extends AppCompatActivity {
             intent.putExtra("isOwnProfile", true);  // Indica que se trata del perfil propio
             intent.putExtra("userId", sessionManager.getUserId()); // Envía el userId del usuario autenticado
             startActivityForResult(intent, REQUEST_CODE_EDIT_PROFILE); // Usar startActivityForResult para recibir el resultado
+        });
+
+        Button accedirBibliotecaButton = findViewById(R.id.accedir_biblioteca);
+        accedirBibliotecaButton.setOnClickListener(v -> {
+            Intent intent = new Intent(PanellUsuari.this, BibliotecaActivity.class);
+            startActivity(intent);
         });
 
         // Inicialització dels botons

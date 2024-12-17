@@ -15,6 +15,15 @@
         android:theme="@style/Theme.LibrarySolutionSDJ"
         tools:targetApi="31">
         <activity
+            android:name=".Loans.MediaReservaDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Media.MediaReservaDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Loans.BibliotecaActivity"
+            android:exported="false" />
+        <activity
             android:name=".Media.MediaDetailActivity"
             android:exported="false" />
         <activity

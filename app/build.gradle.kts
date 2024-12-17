@@ -1,3 +1,7 @@
+import org.gradle.api.tasks.javadoc.Javadoc
+import org.gradle.external.javadoc.StandardJavadocDocletOptions
+
+
 plugins {
     alias(libs.plugins.android.application)
 }
@@ -32,6 +36,22 @@ android {
         viewBinding = true
     }
 }
+
+tasks.register<Javadoc>("javadoc") {
+    val mainSourceSet = project.extensions.getByType(com.android.build.gradle.BaseExtension::class.java)
+        .sourceSets.getByName("main")
+
+    source(mainSourceSet.java.srcDirs)
+    classpath = files(mainSourceSet.java.srcDirs) + files(mainSourceSet.java.srcDirs) +
+            files(project.extensions.getByType(com.android.build.gradle.BaseExtension::class.java).bootClasspath)
+
+    options.encoding = "UTF-8"
+    (options as StandardJavadocDocletOptions).apply {
+        docEncoding = "UTF-8"
+        charSet = "UTF-8"
+    }
+}
+
 
 dependencies {
     implementation(files("libs/Full_Model.jar"))

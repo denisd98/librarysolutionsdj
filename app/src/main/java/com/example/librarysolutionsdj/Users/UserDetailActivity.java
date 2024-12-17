@@ -14,6 +14,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
+import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.example.librarysolutionsdj.SessionManager.SessionManager;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -169,25 +170,34 @@ public class UserDetailActivity extends AppCompatActivity {
                 String response;
                 if (isTestEnvironment) {
                     response = MockServer.simulateModifyUserRequest();
+                    // Asumimos que MockServer ya simula la respuesta apropiada
+                    runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "Canvis aplicats satisfactòriament (mock)", Snackbar.LENGTH_LONG).show());
                 } else {
-                    try (Socket socket = new Socket("10.0.2.2", 12345);
-                         PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
+                    ServerConnectionHelper connection = new ServerConnectionHelper();
+                    try {
+                        connection.connect();                     // Establecer conexión
+                        connection.sendCommand("MODIFY_USER");    // Enviar comando
 
-                        commandOut.println("MODIFY_USER");
-                        commandOut.flush();
-                        ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-                        objectOut.writeInt(selectedUser.getId());
-                        objectOut.writeObject(selectedUser);
-                        objectOut.flush();
+                        // Primero enviamos el ID del usuario
+                        connection.sendInt(selectedUser.getId());
 
-                        Snackbar.make(findViewById(android.R.id.content), "Canvis aplicats satisfactòriament", Snackbar.LENGTH_LONG).show();
+                        // Luego enviamos el objeto usuario
+                        connection.sendObject(selectedUser);
+
+                        runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "Canvis aplicats satisfactòriament", Snackbar.LENGTH_LONG).show());
+                    } catch (Exception e) {
+                        Log.e("UserDetailActivity", "Error guardant els canvis", e);
+                        runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "ERROR guardant canvis", Snackbar.LENGTH_LONG).show());
+                    } finally {
+                        connection.close(); // Cerrar la conexión
                     }
                 }
             } catch (Exception e) {
                 Log.e("UserDetailActivity", "Error guardant els canvis", e);
-                Snackbar.make(findViewById(android.R.id.content), "ERROR guardant canvis", Snackbar.LENGTH_LONG).show();
+                runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "ERROR guardant canvis", Snackbar.LENGTH_LONG).show());
             }
         }).start();
+
     }
 
     /**
@@ -195,22 +205,25 @@ public class UserDetailActivity extends AppCompatActivity {
      */
     private void deleteUser() {
         new Thread(() -> {
-            try (Socket socket = new Socket("10.0.2.2", 12345);
-                 PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
+            ServerConnectionHelper connection = new ServerConnectionHelper();
+            try {
+                connection.connect(); // Establecer la conexión
+                connection.sendCommand("DELETE_USER"); // Enviar comando al servidor
 
-                commandOut.println("DELETE_USER");
-                ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-                objectOut.writeInt(selectedUser.getId());
-                objectOut.flush();
+                // Enviar el ID del usuario a eliminar
+                connection.sendInt(selectedUser.getId());
 
+                // Mostrar éxito en la interfaz de usuario
                 runOnUiThread(() -> {
                     Snackbar.make(findViewById(android.R.id.content), "Usuari eliminat correctament", Snackbar.LENGTH_SHORT).show();
                 });
-
             } catch (Exception e) {
                 Log.e("UserDetailActivity", "Error eliminant l'usuari", e);
                 runOnUiThread(() -> Toast.makeText(UserDetailActivity.this, "Error eliminant l'usuari: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            } finally {
+                connection.close(); // Cerrar la conexión
             }
         }).start();
     }
+
 }

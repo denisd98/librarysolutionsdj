@@ -13,6 +13,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
+import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.ObjectOutputStream;
@@ -108,20 +109,27 @@ public class UserCreate extends AppCompatActivity {
                 String response;
 
                 if (isTestEnvironment) {
-                    // Simular resposta del servidor en mode proves
+                    // Simular respuesta del servidor en modo prueba
                     response = MockServer.simulateCreateUserRequest();
+                    // Si quieres puedes mostrar el Snackbar aquí mismo,
+                    // pero suponemos que MockServer ya simula todo correctamente.
+                    runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "Usuari creat correctament (mock)", Snackbar.LENGTH_LONG).show());
                 } else {
-                    // Comunicació real amb el servidor
-                    try (Socket socket = new Socket("10.0.2.2", 12345);
-                         PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
+                    // Comunicación real con el servidor usando ServerConnectionHelper
+                    ServerConnectionHelper connection = new ServerConnectionHelper();
+                    try {
+                        connection.connect(); // Conectar con el servidor
+                        connection.sendCommand("ADD_USER"); // Enviar el comando
 
-                        commandOut.println("ADD_USER");
+                        // Ahora enviamos el objeto del usuario
+                        connection.sendObject(newUser);
 
-                        ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-                        objectOut.writeObject(newUser);
-                        objectOut.flush();
-
-                        Snackbar.make(findViewById(android.R.id.content), "Usuari creat correctament", Snackbar.LENGTH_LONG).show();
+                        runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "Usuari creat correctament", Snackbar.LENGTH_LONG).show());
+                    } catch (Exception e) {
+                        Log.e("UserCreate", "Error creant l'usuari", e);
+                        runOnUiThread(() -> Toast.makeText(UserCreate.this, "Error creant l'usuari: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    } finally {
+                        connection.close(); // Cerrar la conexión
                     }
                 }
             } catch (Exception e) {
@@ -129,5 +137,6 @@ public class UserCreate extends AppCompatActivity {
                 runOnUiThread(() -> Toast.makeText(UserCreate.this, "Error creant l'usuari: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
+
     }
 }

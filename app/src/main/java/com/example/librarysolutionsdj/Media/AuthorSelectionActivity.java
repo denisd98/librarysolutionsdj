@@ -10,6 +10,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.librarysolutionsdj.R;
+import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 
 import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
@@ -50,19 +51,24 @@ public class AuthorSelectionActivity extends Activity {
 
     private void loadAuthorsFromServer() {
         new Thread(() -> {
+            ServerConnectionHelper connection = new ServerConnectionHelper();
             try {
-                Socket socket = new Socket("10.0.2.2", 12345); // IP del servidor
-                PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
-                out.println("GET_ALL_AUTHORS");
+                // Establecer conexión con el servidor
+                connection.connect();
 
-                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-                allAuthors = (ArrayList<Author>) in.readObject();
+                // Enviar comando al servidor
+                connection.sendCommand("GET_ALL_AUTHORS");
 
+                // Recibir la lista de autores desde el servidor
+                allAuthors = connection.receiveObject();
+
+                // Actualizar la interfaz de usuario
                 runOnUiThread(() -> {
                     authorAdapter.clear();
                     authorAdapter.addAll(allAuthors);
                     authorAdapter.notifyDataSetChanged();
 
+                    // Mantener los elementos seleccionados
                     Set<Author> selectedAuthorSet = new HashSet<>(selectedAuthors);
                     for (int i = 0; i < allAuthors.size(); i++) {
                         if (selectedAuthorSet.contains(allAuthors.get(i))) {
@@ -70,16 +76,17 @@ public class AuthorSelectionActivity extends Activity {
                         }
                     }
                 });
-
-                in.close();
-                out.close();
-                socket.close();
             } catch (Exception e) {
                 e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(this, "Error al cargar autores: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                runOnUiThread(() -> Toast.makeText(this,
+                        "Error al cargar autores: " + e.getMessage(), Toast.LENGTH_LONG).show());
+            } finally {
+                // Cerrar la conexión
+                connection.close();
             }
         }).start();
     }
+
 
     private void confirmSelection() {
         SparseBooleanArray checkedItems = authorListView.getCheckedItemPositions();

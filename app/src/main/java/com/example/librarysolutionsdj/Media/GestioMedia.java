@@ -10,6 +10,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
+import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.example.librarysolutionsdj.SessionManager.SessionManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -85,6 +86,7 @@ public class GestioMedia extends AppCompatActivity {
      */
     private void getAllMedia() {
         new Thread(() -> {
+            ServerConnectionHelper connection = new ServerConnectionHelper();
             try {
                 // Comprovar si hi ha una sessió activa
                 String sessionId = sessionManager.getSessionId();
@@ -93,33 +95,30 @@ public class GestioMedia extends AppCompatActivity {
                     return;
                 }
 
-                // Conexió al servidor
-                Socket socket = new Socket("10.0.2.2", 12345);
-                PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
-                out.println("GET_ALL_MEDIA");
+                // Establir connexió amb el servidor
+                connection.connect();
 
-                // Llegir la resposta del servidor
-                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+                // Enviar la comanda "GET_ALL_MEDIA"
+                connection.sendCommand("GET_ALL_MEDIA");
 
-                // Lee directamente la lista completa de autores
-                mediaList = (ArrayList<Media>) in.readObject();
+                // Rebre la llista de Media des del servidor
+                mediaList = connection.receiveObject();
 
-                // Actualitzar la interfície d'usuari
+                // Actualitzar la interfície d'usuari amb la llista de Media
                 runOnUiThread(() -> {
                     MediaAdapter adapter = new MediaAdapter(GestioMedia.this, mediaList);
                     mediaListView.setAdapter(adapter);
                 });
 
-                // Tancar les connexions
-                in.close();
-                out.close();
-                socket.close();
-
             } catch (Exception e) {
                 // Mostrar un missatge d'error en cas de fallada
                 e.printStackTrace();
                 runOnUiThread(() -> Toast.makeText(GestioMedia.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
+            } finally {
+                // Assegurar que la connexió es tanca
+                connection.close();
             }
         }).start();
     }
+
 }

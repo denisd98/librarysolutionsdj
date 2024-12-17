@@ -10,15 +10,12 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
+import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.example.librarysolutionsdj.SessionManager.SessionManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import app.model.User;
 
-import java.io.ObjectInputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.util.ArrayList;
 
 /**
@@ -35,11 +32,6 @@ public class GestioUsuaris extends AppCompatActivity {
     private ImageButton backButton; // Declaración del botón de volver
     private FloatingActionButton addUserButton; // Botón flotante para añadir usuario
 
-    /**
-     * Mètode que s'executa en crear l'activitat. Configura la interfície d'usuari i inicialitza la llista d'usuaris.
-     *
-     * @param savedInstanceState l'estat de l'activitat guardat anteriorment.
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,42 +75,31 @@ public class GestioUsuaris extends AppCompatActivity {
      */
     private void getAllUsers() {
         new Thread(() -> {
+            String sessionId = sessionManager.getSessionId();
+            if (sessionId == null) {
+                runOnUiThread(() -> Toast.makeText(GestioUsuaris.this, "No hi ha sessió activa", Toast.LENGTH_SHORT).show());
+                return;
+            }
+
+            // Utilizamos ServerConnectionHelper para simplificar el código
+            ServerConnectionHelper connection = new ServerConnectionHelper();
             try {
-                // Recuperar el ID de sesión usando SessionManager
-                String sessionId = sessionManager.getSessionId();
+                connection.connect(); // Establece la conexión con el servidor
+                connection.sendCommand("GET_ALL_USERS"); // Envía el comando
 
-                // Comprobar si hay una sesión activa
-                if (sessionId == null) {
-                    runOnUiThread(() -> Toast.makeText(GestioUsuaris.this, "No hi ha sessió activa", Toast.LENGTH_SHORT).show());
-                    return;
-                }
+                // Recibe la lista de usuarios
+                userList = connection.receiveObject(); // Cast interno en el método
 
-                // Conexión al servidor para obtener la lista de usuarios
-                Socket socket = new Socket("10.0.2.2", 12345); // IP de la máquina virtual de Android Studio
-                PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
-                out.println("GET_ALL_USERS");
-
-                // Lectura del objeto usuarios directamente
-                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-
-                // Lee directamente la lista completa de usuarios
-                userList = (ArrayList<User>) in.readObject();
-
-                // Actualiza la interfaz de usuario con la lista de usuarios
                 runOnUiThread(() -> {
                     UserAdapter adapter = new UserAdapter(GestioUsuaris.this, userList);
                     userListView.setAdapter(adapter);
                 });
 
-                // Cerramos las conexiones
-                in.close();
-                out.close();
-                socket.close();
-
             } catch (Exception e) {
-                // En caso de error, muestra el mensaje de error
                 e.printStackTrace();
                 runOnUiThread(() -> Toast.makeText(GestioUsuaris.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
+            } finally {
+                connection.close();
             }
         }).start();
     }

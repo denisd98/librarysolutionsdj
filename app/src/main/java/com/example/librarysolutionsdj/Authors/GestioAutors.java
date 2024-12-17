@@ -10,6 +10,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
+import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.example.librarysolutionsdj.SessionManager.SessionManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -86,43 +87,38 @@ public class GestioAutors extends AppCompatActivity {
      */
     private void getAllAuthors() {
         new Thread(() -> {
+            ServerConnectionHelper connection = new ServerConnectionHelper();
             try {
-                // Obtenir l'identificador de sessió utilitzant SessionManager
+                // Obtener el ID de sesión usando SessionManager
                 String sessionId = sessionManager.getSessionId();
 
-                // Comprovar si hi ha una sessió activa
+                // Comprobar si hay una sesión activa
                 if (sessionId == null) {
                     runOnUiThread(() -> Toast.makeText(GestioAutors.this, "No hi ha sessió activa", Toast.LENGTH_SHORT).show());
                     return;
                 }
 
-                // Connexió al servidor per obtenir la llista d'autors
-                Socket socket = new Socket("10.0.2.2", 12345); // IP de l'emulador d'Android Studio
-                PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
-                out.println("GET_ALL_AUTHORS");
+                // Conexión al servidor
+                connection.connect();
+                connection.sendCommand("GET_ALL_AUTHORS");
 
-                // Lectura de l'objecte autores des del servidor
-                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+                // Recibir la lista de autores
+                authorList = connection.receiveObject();
 
-                // Lee directamente la lista completa de autores
-                authorList = (ArrayList<Author>) in.readObject();
-
-                // Actualitzar la interfície d'usuari amb la llista d'autors
+                // Actualizar la interfaz de usuario con la lista de autores
                 runOnUiThread(() -> {
                     AuthorAdapter adapter = new AuthorAdapter(GestioAutors.this, authorList);
                     authorListView.setAdapter(adapter);
                 });
 
-                // Tancar les connexions
-                in.close();
-                out.close();
-                socket.close();
-
             } catch (Exception e) {
-                // En cas d'error, mostrar un missatge a l'usuari
                 e.printStackTrace();
                 runOnUiThread(() -> Toast.makeText(GestioAutors.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
+            } finally {
+                // Cerrar la conexión
+                connection.close();
             }
         }).start();
     }
+
 }

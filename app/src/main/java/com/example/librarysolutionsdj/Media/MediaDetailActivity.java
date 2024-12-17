@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
+import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
@@ -165,31 +166,40 @@ public class MediaDetailActivity extends AppCompatActivity {
         }
 
         new Thread(() -> {
-            try (Socket socket = new Socket("10.0.2.2", 12345);
-                 PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
-                commandOut.println("MODIFY_MEDIA");
+            ServerConnectionHelper connection = new ServerConnectionHelper();
+            try {
+                // Establecer la conexión con el servidor
+                connection.connect();
+
+                // Enviar comando MODIFY_MEDIA
+                connection.sendCommand("MODIFY_MEDIA");
                 Log.d(TAG, "Comando enviado: MODIFY_MEDIA");
-                commandOut.flush();
 
-                ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-
-                // Actualizar el objeto Media
+                // Actualizar los valores del objeto Media
                 selectedMedia.setTitle(title);
                 selectedMedia.setYearPublication(Integer.parseInt(year));
                 selectedMedia.setMedia_description(description);
                 selectedMedia.setMediaType(mediaType);
 
-                // Enviar el objeto Author
-                objectOut.writeObject(selectedMedia);
-                objectOut.flush();
+                // Enviar el objeto Media al servidor
+                connection.sendObject(selectedMedia);
                 Log.d(TAG, "Objeto Media enviado.");
 
-                Snackbar.make(findViewById(android.R.id.content), "Canvis aplicats correctament", Snackbar.LENGTH_SHORT).show();
+                // Mostrar confirmación en la interfaz de usuario
+                runOnUiThread(() -> {
+                    Snackbar.make(findViewById(android.R.id.content),
+                            "Canvis aplicats correctament", Snackbar.LENGTH_SHORT).show();
+                });
             } catch (Exception e) {
                 Log.e(TAG, "Error al guardar el Media", e);
-                runOnUiThread(() -> Toast.makeText(this, "Error al guardar la obra", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(this,
+                        "Error al guardar la obra: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            } finally {
+                // Cerrar la conexión
+                connection.close();
             }
         }).start();
+
     }
 
     /**
@@ -197,24 +207,31 @@ public class MediaDetailActivity extends AppCompatActivity {
      */
     private void deleteMedia() {
         new Thread(() -> {
-            try (Socket socket = new Socket("10.0.2.2", 12345);
-                 PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
+            ServerConnectionHelper connection = new ServerConnectionHelper();
+            try {
+                // Establecer conexión con el servidor
+                connection.connect();
 
-                // Enviar comando y el ID
-                commandOut.println("DELETE_MEDIA");
-                ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-                objectOut.writeInt(selectedMedia.getWorkId());
-                objectOut.flush();
+                // Enviar el comando DELETE_MEDIA
+                connection.sendCommand("DELETE_MEDIA");
+                Log.d(TAG, "Comando enviado: DELETE_MEDIA");
 
-                Log.d(TAG, "Obra eliminada: " + selectedMedia.getWorkId());
+                // Enviar el ID de la obra (workId)
+                connection.sendInt(selectedMedia.getWorkId());
+                Log.d(TAG, "ID de la obra eliminada: " + selectedMedia.getWorkId());
 
-                runOnUiThread(() -> {
-                    Snackbar.make(findViewById(android.R.id.content), "Obra eliminada amb èxit", Snackbar.LENGTH_SHORT).show();
-                });
+                // Mostrar confirmación en la UI
+                runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content),
+                        "Obra eliminada amb èxit", Snackbar.LENGTH_SHORT).show());
             } catch (Exception e) {
                 Log.e(TAG, "Error al eliminar Media", e);
-                runOnUiThread(() -> Toast.makeText(this, "Error al eliminar Media", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(this,
+                        "Error al eliminar Media: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            } finally {
+                // Cerrar la conexión
+                connection.close();
             }
         }).start();
     }
+
 }

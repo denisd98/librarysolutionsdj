@@ -1,5 +1,9 @@
 package com.example.librarysolutionsdj.Login;
 
+import android.util.Log;
+
+import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -42,30 +46,33 @@ public class LoginService {
      */
     public void login(String username, String password, LoginCallback callback) {
         new Thread(() -> {
+            ServerConnectionHelper connection = new ServerConnectionHelper();
             try {
-                Socket socket = new Socket("10.0.2.2", 12345);
-                PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
+                // Establecer conexión con el servidor
+                connection.connect();
 
-                // Enviar credenciales
-                out.println("LOGIN");
-                out.println(username);
-                out.println(password);
+                // Enviar el comando LOGIN
+                connection.sendCommand("LOGIN");
+                connection.sendCommand(username);
+                connection.sendCommand(password);
+                Log.d("LOGIN", "Credenciales enviadas");
 
-                // Leer respuesta
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String response = in.readLine();
+                // Leer respuesta del servidor
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String response = reader.readLine();
 
                 if ("LOGIN_OK".equals(response)) {
-                    String sessionIdLine = in.readLine();
-                    String userTypeLine = in.readLine();
-                    String userIdLine = in.readLine();
+                    String sessionIdLine = reader.readLine();
+                    String userTypeLine = reader.readLine();
+                    String userIdLine = reader.readLine();
 
-                    // Verificar que cada línea no sea null y dividir
+                    // Validar respuesta del servidor
                     if (sessionIdLine != null && userTypeLine != null && userIdLine != null) {
                         String sessionId = sessionIdLine.split(":")[1];
                         String userType = userTypeLine.split(":")[1];
                         int userId = Integer.parseInt(userIdLine.split(":")[1]);
 
+                        // Callback de éxito
                         callback.onLoginSuccess(sessionId, userType, userId);
                     } else {
                         callback.onLoginFailure("Respuesta incompleta del servidor");
@@ -73,12 +80,15 @@ public class LoginService {
                 } else {
                     callback.onLoginFailure("Credenciales incorrectas");
                 }
-
-                socket.close();
             } catch (Exception e) {
+                // Manejar error
                 callback.onLoginFailure("ERROR: " + e.getMessage());
+            } finally {
+                // Cerrar conexión
+                connection.close();
             }
         }).start();
     }
+
 
 }

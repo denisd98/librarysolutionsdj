@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
+import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.ObjectOutputStream;
@@ -131,19 +132,27 @@ public class MediaCreate extends AppCompatActivity {
 
             // Enviar el nuevo Media al servidor
             new Thread(() -> {
-                try (Socket socket = new Socket("10.0.2.2", 12345);
-                     PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
-                    commandOut.println("ADD_MEDIA");
-                    commandOut.flush();
+                ServerConnectionHelper connection = new ServerConnectionHelper();
+                try {
+                    // Establir connexió amb el servidor
+                    connection.connect();
 
-                    ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-                    objectOut.writeObject(newMedia);
-                    objectOut.flush();
+                    // Enviar la comanda "ADD_MEDIA"
+                    connection.sendCommand("ADD_MEDIA");
 
-                    runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "Media creada exitosamente", Snackbar.LENGTH_SHORT).show());
+                    // Enviar l'objecte Media al servidor
+                    connection.sendObject(newMedia);
+
+                    // Confirmar l'èxit de l'operació
+                    runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content),
+                            "Media creada exitosamente", Snackbar.LENGTH_SHORT).show());
                 } catch (Exception e) {
                     Log.e(TAG, "Error al crear Media", e);
-                    runOnUiThread(() -> Toast.makeText(this, "Error al crear Media", Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> Toast.makeText(this,
+                            "Error al crear Media: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                } finally {
+                    // Assegurar que la connexió es tanca
+                    connection.close();
                 }
             }).start();
         } catch (NumberFormatException e) {

@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
+import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.ObjectOutputStream;
@@ -110,18 +111,15 @@ public class AuthorDetailActivity extends AppCompatActivity {
 
         // Enviar datos al servidor
         new Thread(() -> {
-            try (Socket socket = new Socket("10.0.2.2", 12345);
-                 PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
-
-                // Enviar el comando como texto
-                commandOut.println("MODIFY_AUTHOR");
+            ServerConnectionHelper connection = new ServerConnectionHelper();
+            try {
+                // Establecer la conexión con el servidor
+                connection.connect();
+                connection.sendCommand("MODIFY_AUTHOR");
                 Log.d(TAG, "Comando enviado: MODIFY_AUTHOR");
-                commandOut.flush();
 
-                ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
                 // Enviar el objeto Author
-                objectOut.writeObject(selectedAuthor);
-                objectOut.flush();
+                connection.sendObject(selectedAuthor);
                 Log.d(TAG, "Objeto Author enviado: " + selectedAuthor.getAuthorname());
 
                 // Confirmación de éxito
@@ -131,11 +129,16 @@ public class AuthorDetailActivity extends AppCompatActivity {
                     resultIntent.putExtra("updatedAuthor", selectedAuthor);
                     setResult(RESULT_OK, resultIntent);
                 });
+
             } catch (Exception e) {
                 Log.e(TAG, "Error al modificar el autor", e);
                 runOnUiThread(() -> Toast.makeText(this, "Error al modificar el autor: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            } finally {
+                // Cerrar la conexión
+                connection.close();
             }
         }).start();
+
     }
 
     /**
@@ -143,24 +146,26 @@ public class AuthorDetailActivity extends AppCompatActivity {
      */
     private void deleteAuthor() {
         new Thread(() -> {
-            try (Socket socket = new Socket("10.0.2.2", 12345);
-                 PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
+            ServerConnectionHelper connection = new ServerConnectionHelper();
+            try {
+                connection.connect();
+                connection.sendCommand("DELETE_AUTHOR");
 
-                commandOut.println("DELETE_AUTHOR");
-                ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-                objectOut.writeInt(selectedAuthor.getAuthorid());
-                objectOut.flush();
-
+                // Enviar el ID del autor a eliminar
+                connection.sendInt(selectedAuthor.getAuthorid());
                 Log.d(TAG, "Autor eliminat: " + selectedAuthor.getAuthorid());
 
-                runOnUiThread(() -> {
-                    Snackbar.make(findViewById(android.R.id.content), "Autor eliminat correctament", Snackbar.LENGTH_SHORT).show();
-                });
+                // Confirmación en la interfaz de usuario
+                Snackbar.make(findViewById(android.R.id.content), "Autor eliminat correctament", Snackbar.LENGTH_SHORT).show();
 
             } catch (Exception e) {
                 Log.e(TAG, "Error eliminant autor", e);
                 runOnUiThread(() -> Toast.makeText(AuthorDetailActivity.this, "Error eliminant autor: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            } finally {
+                // Cerrar la conexión en el bloque finally
+                connection.close();
             }
         }).start();
     }
+
 }

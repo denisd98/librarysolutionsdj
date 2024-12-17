@@ -11,6 +11,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
+import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.example.librarysolutionsdj.Users.MockServer;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -104,29 +105,28 @@ public class AuthorCreate extends AppCompatActivity {
 
         // Enviar los datos al servidor en un hilo independiente
         new Thread(() -> {
+            ServerConnectionHelper connection = new ServerConnectionHelper();
             try {
                 if (isTestEnvironment) {
                     // Simulación en entorno de prueba
                     MockServer.simulateCreateAuthorRequest();
                 } else {
                     // Conexión real con el servidor
-                    try (Socket socket = new Socket("10.0.2.2", 12345);
-                         PrintWriter commandOut = new PrintWriter(socket.getOutputStream(), true)) {
+                    connection.connect(); // Establecer la conexión
+                    connection.sendCommand("ADD_AUTHOR"); // Enviar comando al servidor
+                    connection.sendObject(newAuthor); // Enviar el objeto del autor
 
-                        commandOut.println("ADD_AUTHOR");
-
-                        ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
-                        objectOut.writeObject(newAuthor);
-                        objectOut.flush();
-
-                        runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "Autor creado correctamente", Snackbar.LENGTH_LONG).show());
-                    }
+                    // Mostrar confirmación en la interfaz de usuario
+                    runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "Autor creado correctamente", Snackbar.LENGTH_LONG).show());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(() -> Toast.makeText(AuthorCreate.this, "Error creando autor: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            } finally {
+                connection.close(); // Cerrar la conexión
             }
         }).start();
+
     }
 
 }
