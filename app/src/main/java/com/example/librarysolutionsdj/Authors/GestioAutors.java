@@ -22,6 +22,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Classe que gestiona la visualització i administració dels autors registrats al sistema.
@@ -87,27 +88,29 @@ public class GestioAutors extends AppCompatActivity {
      */
     private void getAllAuthors() {
         new Thread(() -> {
+            String sessionId = sessionManager.getSessionId();
+            if (sessionId == null) {
+                runOnUiThread(() -> Toast.makeText(GestioAutors.this, "No hi ha sessió activa", Toast.LENGTH_SHORT).show());
+                return;
+            }
+
+            // Utilizamos ServerConnectionHelper para simplificar el código
             ServerConnectionHelper connection = new ServerConnectionHelper();
             try {
-                // Obtener el ID de sesión usando SessionManager
-                String sessionId = sessionManager.getSessionId();
+                connection.connect(); // Establece la conexión con el servidor
 
-                // Comprobar si hay una sesión activa
-                if (sessionId == null) {
-                    runOnUiThread(() -> Toast.makeText(GestioAutors.this, "No hi ha sessió activa", Toast.LENGTH_SHORT).show());
-                    return;
-                }
+                // Enviar el comando "GET_ALL_AUTHORS" cifrado
+                connection.sendEncryptedCommand("GET_ALL_AUTHORS");
+                System.out.println("Comando 'GET_ALL_AUTHORS' enviado.");
 
-                // Conexión al servidor
-                connection.connect();
-                connection.sendCommand("GET_ALL_AUTHORS");
 
-                // Recibir la lista de autores
-                authorList = connection.receiveObject();
+                // Recibir la lista de autores cifrada y deserializada
+                List<Author> receivedAuthorList = (List<Author>) connection.receiveEncryptedObject();
+                System.out.println("Lista de autores recibida.");
 
                 // Actualizar la interfaz de usuario con la lista de autores
                 runOnUiThread(() -> {
-                    AuthorAdapter adapter = new AuthorAdapter(GestioAutors.this, authorList);
+                    AuthorAdapter adapter = new AuthorAdapter(GestioAutors.this, (ArrayList<Author>) receivedAuthorList);
                     authorListView.setAdapter(adapter);
                 });
 
@@ -115,7 +118,6 @@ public class GestioAutors extends AppCompatActivity {
                 e.printStackTrace();
                 runOnUiThread(() -> Toast.makeText(GestioAutors.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
             } finally {
-                // Cerrar la conexión
                 connection.close();
             }
         }).start();

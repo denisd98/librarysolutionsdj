@@ -55,6 +55,7 @@ tasks.register<Javadoc>("javadoc") {
 
 dependencies {
     implementation(files("libs/Full_Model.jar"))
+    implementation(files("libs/Crypto.jar"))
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)

@@ -14,15 +14,18 @@ import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.example.librarysolutionsdj.SessionManager.SessionManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import app.crypto.CryptoUtils;
 import app.model.User;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * La classe GestioUsuaris permet gestionar la visualització de tots els usuaris registrats en el sistema.
  * Aquesta classe carrega la llista d'usuaris des d'un servidor remot i la mostra en un ListView.
  */
 public class GestioUsuaris extends AppCompatActivity {
+    private static final String PASSWORD = CryptoUtils.getGenericPassword(); // Contraseña genérica para cifrado
 
     // Vista de la llista d'usuaris i llista d'usuaris
     private ListView userListView;
@@ -70,8 +73,8 @@ public class GestioUsuaris extends AppCompatActivity {
     }
 
     /**
-     * Mètode que obté la llista de tots els usuaris connectant-se a un servidor remot.
-     * Utilitza una connexió de socket i un ObjectInputStream per deserialitzar la llista d'usuaris.
+     * Método que obtiene la lista de todos los usuarios conectándose a un servidor remoto.
+     * Utiliza una conexión de socket y ObjectInputStream para deserializar la lista de usuarios.
      */
     private void getAllUsers() {
         new Thread(() -> {
@@ -85,13 +88,18 @@ public class GestioUsuaris extends AppCompatActivity {
             ServerConnectionHelper connection = new ServerConnectionHelper();
             try {
                 connection.connect(); // Establece la conexión con el servidor
-                connection.sendCommand("GET_ALL_USERS"); // Envía el comando
 
-                // Recibe la lista de usuarios
-                userList = connection.receiveObject(); // Cast interno en el método
+                // Enviar el comando "GET_ALL_USERS" cifrado
+                connection.sendEncryptedCommand("GET_ALL_USERS");
+                System.out.println("Comando 'GET_ALL_USERS' enviado.");
 
+                // Recibir la lista de usuarios cifrada y deserializada
+                List<User> users = (List<User>) connection.receiveEncryptedObject();
+                System.out.println("Lista de usuarios recibida.");
+
+                // Actualizar la interfaz de usuario
                 runOnUiThread(() -> {
-                    UserAdapter adapter = new UserAdapter(GestioUsuaris.this, userList);
+                    UserAdapter adapter = new UserAdapter(GestioUsuaris.this, (ArrayList<User>) users);
                     userListView.setAdapter(adapter);
                 });
 

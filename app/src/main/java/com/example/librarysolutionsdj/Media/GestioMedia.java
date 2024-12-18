@@ -9,116 +9,108 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.librarysolutionsdj.Media.MediaAdapter;
+import com.example.librarysolutionsdj.Media.MediaCreate;
+import com.example.librarysolutionsdj.Media.MediaDetailActivity;
 import com.example.librarysolutionsdj.R;
 import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.example.librarysolutionsdj.SessionManager.SessionManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import app.model.Author;
-import app.model.Media;
+import app.crypto.CryptoUtils;
+import app.model.Media; // Asegúrate de tener una clase Media que implementa Serializable
+import app.model.User;
 
-import java.io.ObjectInputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Classe per gestionar la visualització de totes les obres (Media) registrades en el sistema.
- * Aquesta activitat permet obtenir una llista de totes les obres des del servidor i visualitzar-les en un ListView.
+ * La classe GestioMedia permet gestionar la visualització de tots els mitjans registrats en el sistema.
+ * Aquesta classe carrega la llista de mitjans des d'un servidor remot i la mostra en un ListView.
  */
 public class GestioMedia extends AppCompatActivity {
+    private static final String PASSWORD = CryptoUtils.getGenericPassword(); // Contraseña genérica para cifrado
 
+    // Vista de la llista de mitjans i llista de mitjans
     private ListView mediaListView;
     private ArrayList<Media> mediaList;
     private SessionManager sessionManager;
-    private ImageButton backButton;
-    private FloatingActionButton addMediaButton;
+    private ImageButton backButton; // Declaración del botón de volver
+    private FloatingActionButton addMediaButton; // Botón flotante para añadir medio
 
-    /**
-     * Mètode que s'executa en crear l'activitat. Configura la interfície d'usuari i inicialitza la llista d'obres.
-     *
-     * @param savedInstanceState L'estat guardat de l'activitat, si n'hi ha.
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gestio_media);
         EdgeToEdge.enable(this);
 
-        // Inicialitzar els components de la interfície d'usuari
         mediaListView = findViewById(R.id.media_list_view);
         mediaList = new ArrayList<>();
         sessionManager = new SessionManager(this);
-        backButton = findViewById(R.id.back_button);
-        addMediaButton = findViewById(R.id.fab_add_media);
+        backButton = findViewById(R.id.back_button); // Inicialización del botón de volver
+        addMediaButton = findViewById(R.id.fab_add_media); // Inicialización del botón flotante
 
-        // Configurar el botó de tornar enrere
+        // Configurar el botón de volver atrás
         backButton.setOnClickListener(v -> finish());
 
-        // Configurar el listener de clic per cada element de la llista
-        mediaListView.setOnItemClickListener((parent, view, position, id) -> {
-            Media selectedMedia = mediaList.get(position);
-            Intent intent = new Intent(GestioMedia.this, MediaDetailActivity.class);
-            intent.putExtra("selectedMedia", selectedMedia); // Passar l'objecte Media complet
-            startActivity(intent);
-        });
-
+        // Configurar el botón flotante para añadir un nuevo medio
         addMediaButton.setOnClickListener(v -> {
             Intent intent = new Intent(GestioMedia.this, MediaCreate.class);
             startActivity(intent);
         });
+
+        // Configurar el listener de clic para cada elemento en la lista
+        mediaListView.setOnItemClickListener((parent, view, position, id) -> {
+            Media selectedMedia = mediaList.get(position);
+            Intent intent = new Intent(GestioMedia.this, MediaDetailActivity.class);
+            intent.putExtra("selectedMedia", selectedMedia);  // Pasar el objeto Media completo
+            startActivity(intent);
+        });
     }
 
-    /**
-     * Mètode que s'executa quan l'activitat torna a estar en primer pla.
-     * Recàrrega la llista d'obres des del servidor.
-     */
     @Override
     protected void onResume() {
         super.onResume();
-        getAllMedia(); // Recàrrega la llista d'obres
+        getAllMedia(); // Recarga la lista de medios desde el servidor al volver a la actividad
     }
 
     /**
-     * Mètode per obtenir totes les obres connectant-se a un servidor remot.
-     * Utilitza sockets per enviar un comandament i rebre una llista d'obres.
+     * Método que obtiene la lista de todos los medios conectándose a un servidor remoto.
+     * Utiliza una conexión de socket y ObjectInputStream para deserializar la lista de medios.
      */
     private void getAllMedia() {
         new Thread(() -> {
+            String sessionId = sessionManager.getSessionId();
+            if (sessionId == null) {
+                runOnUiThread(() -> Toast.makeText(GestioMedia.this, "No hi ha sessió activa", Toast.LENGTH_SHORT).show());
+                return;
+            }
+
+            // Utilizamos ServerConnectionHelper para simplificar el código
             ServerConnectionHelper connection = new ServerConnectionHelper();
             try {
-                // Comprovar si hi ha una sessió activa
-                String sessionId = sessionManager.getSessionId();
-                if (sessionId == null) {
-                    runOnUiThread(() -> Toast.makeText(GestioMedia.this, "No hi ha sessió activa", Toast.LENGTH_SHORT).show());
-                    return;
-                }
+                connection.connect(); // Establece la conexión con el servidor
 
-                // Establir connexió amb el servidor
-                connection.connect();
+                // Enviar el comando "GET_ALL_MEDIA" cifrado
+                connection.sendEncryptedCommand("GET_ALL_MEDIA");
+                System.out.println("Comando 'GET_ALL_MEDIA' enviado.");
 
-                // Enviar la comanda "GET_ALL_MEDIA"
-                connection.sendCommand("GET_ALL_MEDIA");
+                // Recibir la lista de medios cifrada y deserializada
+                List<Media> receivedMediaList = (List<Media>) connection.receiveEncryptedObject();
+                System.out.println("Lista de medios recibida.");
 
-                // Rebre la llista de Media des del servidor
-                mediaList = connection.receiveObject();
-
-                // Actualitzar la interfície d'usuari amb la llista de Media
+                // Actualizar la interfaz de usuario con la lista de medios
                 runOnUiThread(() -> {
-                    MediaAdapter adapter = new MediaAdapter(GestioMedia.this, mediaList);
+                    MediaAdapter adapter = new MediaAdapter(GestioMedia.this, (ArrayList<Media>) receivedMediaList);
                     mediaListView.setAdapter(adapter);
                 });
 
             } catch (Exception e) {
-                // Mostrar un missatge d'error en cas de fallada
                 e.printStackTrace();
                 runOnUiThread(() -> Toast.makeText(GestioMedia.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
             } finally {
-                // Assegurar que la connexió es tanca
                 connection.close();
             }
         }).start();
     }
-
 }

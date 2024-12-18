@@ -1,9 +1,9 @@
 package com.example.librarysolutionsdj.Users;
 
+import app.crypto.CryptoUtils;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -17,6 +17,7 @@ public class UserService {
 
     private final String serverHost = "10.0.2.2"; // IP de la màquina virtual d'Android Studio
     private final int serverPort = 12345;        // Port del servidor
+    private static final String PASSWORD = CryptoUtils.getGenericPassword(); // Contraseña genérica para cifrado
 
     /**
      * Interfície de callback per manejar la resposta de l'obtenció del perfil d'usuari.
@@ -48,24 +49,22 @@ public class UserService {
      * @param sessionId Identificador de sessió de l'usuari
      * @param callback  Callback per processar el resultat de l'operació
      */
-
     public void getUserProfile(String sessionId, UserProfileCallback callback) {
         new Thread(() -> {
-            try (Socket socket = new Socket(serverHost, serverPort);
-                 PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
-                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            try (Socket socket = new Socket(serverHost, serverPort)) {
+                // Enviar comando cifrado
+                CryptoUtils.sendString(socket.getOutputStream(), "GET_PROFILE", PASSWORD);
+                CryptoUtils.sendString(socket.getOutputStream(), sessionId, PASSWORD);
 
-                // Solicita el perfil del usuario
-                out.println("GET_PROFILE");
-                out.println(sessionId);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-                // Lee la respuesta del servidor
-                String userAlias = in.readLine();
-                String username = in.readLine();
-                String surname1 = in.readLine();
-                String surname2 = in.readLine();
-                String userType = in.readLine();
-                String password = in.readLine(); // Si se incluye la contraseña en la respuesta
+                // Leer respuesta cifrada
+                String userAlias = CryptoUtils.readString(reader, PASSWORD);
+                String username = CryptoUtils.readString(reader, PASSWORD);
+                String surname1 = CryptoUtils.readString(reader, PASSWORD);
+                String surname2 = CryptoUtils.readString(reader, PASSWORD);
+                String userType = CryptoUtils.readString(reader, PASSWORD);
+                String password = CryptoUtils.readString(reader, PASSWORD); // Si se incluye la contraseña en la respuesta
 
                 if (userAlias != null && username != null) {
                     UserProfile profile = new UserProfile(userAlias, username, surname1, surname2, userType, password);
@@ -80,8 +79,6 @@ public class UserService {
         }).start();
     }
 
-
-
     /**
      * Executa el logout de l'usuari enviant el sessionId al servidor.
      *
@@ -90,16 +87,15 @@ public class UserService {
      */
     public void logout(String sessionId, LogoutCallback callback) {
         new Thread(() -> {
-            try (Socket socket = new Socket(serverHost, serverPort);
-                 PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
-                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            try (Socket socket = new Socket(serverHost, serverPort)) {
+                // Enviar comando cifrado
+                CryptoUtils.sendString(socket.getOutputStream(), "LOGOUT", PASSWORD);
+                CryptoUtils.sendString(socket.getOutputStream(), sessionId, PASSWORD);
 
-                // Envia la comanda de logout
-                out.println("LOGOUT");
-                out.println(sessionId);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-                // Llegeix la resposta del servidor
-                String response = in.readLine();
+                // Leer respuesta cifrada
+                String response = CryptoUtils.readString(reader, PASSWORD);
                 if ("LOGOUT_OK".equals(response)) {
                     callback.onLogoutSuccess();
                 } else {
