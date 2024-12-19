@@ -113,8 +113,8 @@ public class AuthorCreate extends AppCompatActivity {
                 } else {
                     // Conexión real con el servidor
                     connection.connect(); // Establecer la conexión
-                    connection.sendCommand("ADD_AUTHOR"); // Enviar comando al servidor
-                    connection.sendObject(newAuthor); // Enviar el objeto del autor
+                    connection.sendEncryptedCommand("ADD_AUTHOR"); // Enviar comando cifrado al servidor
+                    connection.sendEncryptedObject(newAuthor); // Enviar el objeto del autor cifrado
 
                     // Mostrar confirmación en la interfaz de usuario
                     runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "Autor creado correctamente", Snackbar.LENGTH_LONG).show());
@@ -126,6 +126,7 @@ public class AuthorCreate extends AppCompatActivity {
                 connection.close(); // Cerrar la conexión
             }
         }).start();
+
 
     }
 

@@ -111,19 +111,18 @@ public class UserCreate extends AppCompatActivity {
                 if (isTestEnvironment) {
                     // Simular respuesta del servidor en modo prueba
                     response = MockServer.simulateCreateUserRequest();
-                    // Si quieres puedes mostrar el Snackbar aquí mismo,
-                    // pero suponemos que MockServer ya simula todo correctamente.
                     runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "Usuari creat correctament (mock)", Snackbar.LENGTH_LONG).show());
                 } else {
                     // Comunicación real con el servidor usando ServerConnectionHelper
                     ServerConnectionHelper connection = new ServerConnectionHelper();
                     try {
                         connection.connect(); // Conectar con el servidor
-                        connection.sendCommand("ADD_USER"); // Enviar el comando
+                        connection.sendEncryptedCommand("ADD_USER"); // Enviar el comando cifrado
 
-                        // Ahora enviamos el objeto del usuario
-                        connection.sendObject(newUser);
+                        // Ahora enviamos el objeto del usuario cifrado
+                        connection.sendEncryptedObject(newUser);
 
+                        // Confirmar éxito en la IU
                         runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "Usuari creat correctament", Snackbar.LENGTH_LONG).show());
                     } catch (Exception e) {
                         Log.e("UserCreate", "Error creant l'usuari", e);
@@ -137,6 +136,7 @@ public class UserCreate extends AppCompatActivity {
                 runOnUiThread(() -> Toast.makeText(UserCreate.this, "Error creant l'usuari: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
+
 
     }
 }

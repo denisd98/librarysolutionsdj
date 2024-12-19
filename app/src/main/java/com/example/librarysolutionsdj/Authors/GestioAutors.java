@@ -94,26 +94,23 @@ public class GestioAutors extends AppCompatActivity {
                 return;
             }
 
-            // Utilizamos ServerConnectionHelper para simplificar el código
             ServerConnectionHelper connection = new ServerConnectionHelper();
             try {
-                connection.connect(); // Establece la conexión con el servidor
-
-                // Enviar el comando "GET_ALL_AUTHORS" cifrado
+                connection.connect();
                 connection.sendEncryptedCommand("GET_ALL_AUTHORS");
-                System.out.println("Comando 'GET_ALL_AUTHORS' enviado.");
 
-
-                // Recibir la lista de autores cifrada y deserializada
+                // Recibir la lista de autores desde el servidor
                 List<Author> receivedAuthorList = (List<Author>) connection.receiveEncryptedObject();
-                System.out.println("Lista de autores recibida.");
 
-                // Actualizar la interfaz de usuario con la lista de autores
+                // Actualizar la lista de autores y la interfaz de usuario
                 runOnUiThread(() -> {
-                    AuthorAdapter adapter = new AuthorAdapter(GestioAutors.this, (ArrayList<Author>) receivedAuthorList);
+                    authorList.clear(); // Asegúrate de limpiar la lista anterior
+                    authorList.addAll(receivedAuthorList); // Actualiza authorList con los datos recibidos
+
+                    // Configurar el adaptador
+                    AuthorAdapter adapter = new AuthorAdapter(GestioAutors.this, authorList);
                     authorListView.setAdapter(adapter);
                 });
-
             } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(() -> Toast.makeText(GestioAutors.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
@@ -122,5 +119,6 @@ public class GestioAutors extends AppCompatActivity {
             }
         }).start();
     }
+
 
 }

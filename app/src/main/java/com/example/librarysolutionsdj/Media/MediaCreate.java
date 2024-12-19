@@ -138,10 +138,10 @@ public class MediaCreate extends AppCompatActivity {
                     connection.connect();
 
                     // Enviar la comanda "ADD_MEDIA"
-                    connection.sendCommand("ADD_MEDIA");
+                    connection.sendEncryptedCommand("ADD_MEDIA");
 
                     // Enviar l'objecte Media al servidor
-                    connection.sendObject(newMedia);
+                    connection.sendEncryptedObject(newMedia);
 
                     // Confirmar l'èxit de l'operació
                     runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content),

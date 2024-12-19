@@ -83,12 +83,12 @@ public class BibliotecaActivity extends AppCompatActivity {
                 // Establecer la conexión
                 connection.connect();
 
-                // Enviar el comando al servidor
-                connection.sendCommand("GET_ALL_MEDIA");
+                // Enviar el comando cifrado al servidor
+                connection.sendEncryptedCommand("GET_ALL_MEDIA");
 
-                // Recibir la lista de Media desde el servidor
+                // Recibir la lista de Media desde el servidor (cifrada)
                 @SuppressWarnings("unchecked")
-                ArrayList<Media> mediaList = connection.receiveObject();
+                ArrayList<Media> mediaList = (ArrayList<Media>) connection.receiveEncryptedObject();
 
                 // Actualizar la lista y la interfaz de usuario
                 runOnUiThread(() -> {
@@ -108,6 +108,7 @@ public class BibliotecaActivity extends AppCompatActivity {
             }
         }).start();
     }
+
 
 
     private void filterMedia(String query) {

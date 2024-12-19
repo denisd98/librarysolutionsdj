@@ -1,5 +1,7 @@
 package com.example.librarysolutionsdj.Users;
 
+import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
+
 import app.crypto.CryptoUtils;
 
 import java.io.BufferedReader;
@@ -51,20 +53,22 @@ public class UserService {
      */
     public void getUserProfile(String sessionId, UserProfileCallback callback) {
         new Thread(() -> {
-            try (Socket socket = new Socket(serverHost, serverPort)) {
-                // Enviar comando cifrado
-                CryptoUtils.sendString(socket.getOutputStream(), "GET_PROFILE", PASSWORD);
-                CryptoUtils.sendString(socket.getOutputStream(), sessionId, PASSWORD);
+            ServerConnectionHelper connection = new ServerConnectionHelper();
+            try {
+                // Establecer conexión con el servidor
+                connection.connect();
 
-                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                // Enviar comando cifrado y sesión ID
+                connection.sendEncryptedCommand("GET_PROFILE");
+                connection.sendEncryptedCommand(sessionId);
 
-                // Leer respuesta cifrada
-                String userAlias = CryptoUtils.readString(reader, PASSWORD);
-                String username = CryptoUtils.readString(reader, PASSWORD);
-                String surname1 = CryptoUtils.readString(reader, PASSWORD);
-                String surname2 = CryptoUtils.readString(reader, PASSWORD);
-                String userType = CryptoUtils.readString(reader, PASSWORD);
-                String password = CryptoUtils.readString(reader, PASSWORD); // Si se incluye la contraseña en la respuesta
+                // Leer los datos cifrados del perfil de usuario
+                String userAlias = connection.receiveEncryptedString();
+                String username = connection.receiveEncryptedString();
+                String surname1 = connection.receiveEncryptedString();
+                String surname2 = connection.receiveEncryptedString();
+                String userType = connection.receiveEncryptedString();
+                String password = connection.receiveEncryptedString(); // Si se incluye la contraseña
 
                 if (userAlias != null && username != null) {
                     UserProfile profile = new UserProfile(userAlias, username, surname1, surname2, userType, password);
@@ -72,12 +76,15 @@ public class UserService {
                 } else {
                     callback.onError("Perfil no encontrado.");
                 }
-
             } catch (Exception e) {
                 callback.onError("Error obteniendo el perfil: " + e.getMessage());
+            } finally {
+                // Cerrar conexión
+                connection.close();
             }
         }).start();
     }
+
 
     /**
      * Executa el logout de l'usuari enviant el sessionId al servidor.
@@ -87,24 +94,29 @@ public class UserService {
      */
     public void logout(String sessionId, LogoutCallback callback) {
         new Thread(() -> {
-            try (Socket socket = new Socket(serverHost, serverPort)) {
-                // Enviar comando cifrado
-                CryptoUtils.sendString(socket.getOutputStream(), "LOGOUT", PASSWORD);
-                CryptoUtils.sendString(socket.getOutputStream(), sessionId, PASSWORD);
+            ServerConnectionHelper connection = new ServerConnectionHelper();
+            try {
+                // Establecer la conexión con el servidor
+                connection.connect();
 
-                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                // Enviar comando cifrado y sesión ID
+                connection.sendEncryptedCommand("LOGOUT");
+                connection.sendEncryptedCommand(sessionId);
 
-                // Leer respuesta cifrada
-                String response = CryptoUtils.readString(reader, PASSWORD);
+                // Leer la respuesta cifrada del servidor
+                String response = connection.receiveEncryptedString();
                 if ("LOGOUT_OK".equals(response)) {
                     callback.onLogoutSuccess();
                 } else {
                     callback.onLogoutError("Error en tancar la sessió");
                 }
-
             } catch (Exception e) {
                 callback.onLogoutError("Error en tancar la sessió: " + e.getMessage());
+            } finally {
+                // Cerrar la conexión
+                connection.close();
             }
         }).start();
     }
+
 }

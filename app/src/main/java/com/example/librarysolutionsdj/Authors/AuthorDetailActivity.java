@@ -43,7 +43,7 @@ public class AuthorDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_author_detail);
 
         // Obtenir l'autor seleccionat
-        selectedAuthor = (Author) getIntent().getSerializableExtra("selectedAuthor");
+        selectedAuthor = (Author)getIntent().getSerializableExtra("selectedAuthor");
 
         // Inicialitzar els components de la vista
         authorNameEditText = findViewById(R.id.author_name_edit_text);
@@ -115,11 +115,11 @@ public class AuthorDetailActivity extends AppCompatActivity {
             try {
                 // Establecer la conexión con el servidor
                 connection.connect();
-                connection.sendCommand("MODIFY_AUTHOR");
+                connection.sendEncryptedCommand("MODIFY_AUTHOR");
                 Log.d(TAG, "Comando enviado: MODIFY_AUTHOR");
 
-                // Enviar el objeto Author
-                connection.sendObject(selectedAuthor);
+                // Enviar el objeto Author cifrado
+                connection.sendEncryptedObject(selectedAuthor);
                 Log.d(TAG, "Objeto Author enviado: " + selectedAuthor.getAuthorname());
 
                 // Confirmación de éxito
@@ -149,20 +149,24 @@ public class AuthorDetailActivity extends AppCompatActivity {
             ServerConnectionHelper connection = new ServerConnectionHelper();
             try {
                 connection.connect();
-                connection.sendCommand("DELETE_AUTHOR");
+                connection.sendEncryptedCommand("DELETE_AUTHOR");
 
-                // Enviar el ID del autor a eliminar
-                connection.sendInt(selectedAuthor.getAuthorid());
+                // Enviar el ID del autor cifrado
+                connection.sendEncryptedInt(selectedAuthor.getAuthorid());
                 Log.d(TAG, "Autor eliminat: " + selectedAuthor.getAuthorid());
 
                 // Confirmación en la interfaz de usuario
-                Snackbar.make(findViewById(android.R.id.content), "Autor eliminat correctament", Snackbar.LENGTH_SHORT).show();
+                runOnUiThread(() ->
+                        Snackbar.make(findViewById(android.R.id.content), "Autor eliminat correctament", Snackbar.LENGTH_SHORT).show()
+                );
 
             } catch (Exception e) {
                 Log.e(TAG, "Error eliminant autor", e);
-                runOnUiThread(() -> Toast.makeText(AuthorDetailActivity.this, "Error eliminant autor: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                runOnUiThread(() ->
+                        Toast.makeText(AuthorDetailActivity.this, "Error eliminant autor: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
             } finally {
-                // Cerrar la conexión en el bloque finally
+                // Cerrar la conexión
                 connection.close();
             }
         }).start();

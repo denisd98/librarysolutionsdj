@@ -1,6 +1,7 @@
 package com.example.librarysolutionsdj.Media;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,8 @@ import android.widget.TextView;
 import java.util.List;
 
 import app.model.Author;
+
+import android.widget.CheckedTextView;
 
 public class AuthorAdapter extends ArrayAdapter<Author> {
 
@@ -25,12 +28,14 @@ public class AuthorAdapter extends ArrayAdapter<Author> {
         }
 
         Author author = getItem(position);
-        TextView textView = convertView.findViewById(android.R.id.text1);
+        CheckedTextView textView = convertView.findViewById(android.R.id.text1);
 
         if (author != null) {
             textView.setText(author.getFullName());
+            Log.d("AuthorAdapter", "Configurando vista para: " + author.getFullName());
         }
 
         return convertView;
     }
 }
+

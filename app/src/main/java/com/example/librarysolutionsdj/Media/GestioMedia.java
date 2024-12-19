@@ -86,22 +86,21 @@ public class GestioMedia extends AppCompatActivity {
                 return;
             }
 
-            // Utilizamos ServerConnectionHelper para simplificar el código
             ServerConnectionHelper connection = new ServerConnectionHelper();
             try {
-                connection.connect(); // Establece la conexión con el servidor
-
-                // Enviar el comando "GET_ALL_MEDIA" cifrado
+                connection.connect();
                 connection.sendEncryptedCommand("GET_ALL_MEDIA");
                 System.out.println("Comando 'GET_ALL_MEDIA' enviado.");
 
-                // Recibir la lista de medios cifrada y deserializada
+                // Recibir la lista de medios
                 List<Media> receivedMediaList = (List<Media>) connection.receiveEncryptedObject();
                 System.out.println("Lista de medios recibida.");
 
-                // Actualizar la interfaz de usuario con la lista de medios
+                // Actualizar la lista principal
                 runOnUiThread(() -> {
-                    MediaAdapter adapter = new MediaAdapter(GestioMedia.this, (ArrayList<Media>) receivedMediaList);
+                    mediaList.clear();
+                    mediaList.addAll(receivedMediaList);
+                    MediaAdapter adapter = new MediaAdapter(GestioMedia.this, mediaList);
                     mediaListView.setAdapter(adapter);
                 });
 
@@ -113,4 +112,5 @@ public class GestioMedia extends AppCompatActivity {
             }
         }).start();
     }
+
 }

@@ -178,9 +178,6 @@ public class UserDetailActivity extends AppCompatActivity {
                         connection.connect(); // Establecer conexión
                         connection.sendEncryptedCommand("MODIFY_USER"); // Enviar comando
 
-                        // Enviar el ID del usuario
-                        connection.sendEncryptedInt(selectedUser.getId());
-
                         // Enviar el objeto usuario
                         connection.sendEncryptedObject(selectedUser);
 

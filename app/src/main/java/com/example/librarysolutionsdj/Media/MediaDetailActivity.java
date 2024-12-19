@@ -172,7 +172,7 @@ public class MediaDetailActivity extends AppCompatActivity {
                 connection.connect();
 
                 // Enviar comando MODIFY_MEDIA
-                connection.sendCommand("MODIFY_MEDIA");
+                connection.sendEncryptedCommand("MODIFY_MEDIA");
                 Log.d(TAG, "Comando enviado: MODIFY_MEDIA");
 
                 // Actualizar los valores del objeto Media
@@ -182,7 +182,7 @@ public class MediaDetailActivity extends AppCompatActivity {
                 selectedMedia.setMediaType(mediaType);
 
                 // Enviar el objeto Media al servidor
-                connection.sendObject(selectedMedia);
+                connection.sendEncryptedObject(selectedMedia);
                 Log.d(TAG, "Objeto Media enviado.");
 
                 // Mostrar confirmación en la interfaz de usuario
@@ -213,11 +213,11 @@ public class MediaDetailActivity extends AppCompatActivity {
                 connection.connect();
 
                 // Enviar el comando DELETE_MEDIA
-                connection.sendCommand("DELETE_MEDIA");
+                connection.sendEncryptedCommand("DELETE_MEDIA");
                 Log.d(TAG, "Comando enviado: DELETE_MEDIA");
 
                 // Enviar el ID de la obra (workId)
-                connection.sendInt(selectedMedia.getWorkId());
+                connection.sendEncryptedInt(selectedMedia.getWorkId());
                 Log.d(TAG, "ID de la obra eliminada: " + selectedMedia.getWorkId());
 
                 // Mostrar confirmación en la UI
