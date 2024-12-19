@@ -18,13 +18,11 @@ import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.example.librarysolutionsdj.SessionManager.SessionManager;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
-
+import app.crypto.CryptoUtils;
 import app.model.User;
+
+import java.io.IOException;
+import java.net.Socket;
 
 /**
  * Activitat que permet gestionar els detalls d'un usuari existent.
@@ -41,6 +39,8 @@ public class UserDetailActivity extends AppCompatActivity {
     private UserService userService;
     private boolean isOwnProfile; // Indica si l'usuari està editant el seu propi perfil
     private boolean isTestEnvironment = false; // Indica si l'activitat està en un entorn de proves
+
+    private static final String TAG = "UserDetailActivity";
 
     /**
      * Configura la interfície gràfica de l'activitat i inicialitza els components.
@@ -102,7 +102,7 @@ public class UserDetailActivity extends AppCompatActivity {
             @Override
             public void onError(String errorMessage) {
                 runOnUiThread(() -> {
-                    Log.e("UserDetailActivity", "Error carregant el perfil de l'usuari: " + errorMessage);
+                    Log.e(TAG, "Error carregant el perfil de l'usuari: " + errorMessage);
                     Toast.makeText(UserDetailActivity.this, "Error carregant el perfil de l'usuari", Toast.LENGTH_SHORT).show();
                     finish();
                 });
@@ -167,33 +167,34 @@ public class UserDetailActivity extends AppCompatActivity {
 
         new Thread(() -> {
             try {
-                String response;
                 if (isTestEnvironment) {
-                    response = MockServer.simulateModifyUserRequest();
+                    // En entorn de proves, simula la resposta
+                    String response = MockServer.simulateModifyUserRequest();
                     // Asumimos que MockServer ya simula la respuesta apropiada
                     runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "Canvis aplicats satisfactòriament (mock)", Snackbar.LENGTH_LONG).show());
                 } else {
                     ServerConnectionHelper connection = new ServerConnectionHelper();
                     try {
-                        connection.connect();                     // Establecer conexión
-                        connection.sendCommand("MODIFY_USER");    // Enviar comando
+                        connection.connect(); // Establecer conexión
+                        connection.sendEncryptedCommand("MODIFY_USER"); // Enviar comando
 
-                        // Primero enviamos el ID del usuario
-                        connection.sendInt(selectedUser.getId());
+                        // Enviar el ID del usuario
+                        connection.sendEncryptedInt(selectedUser.getId());
 
-                        // Luego enviamos el objeto usuario
-                        connection.sendObject(selectedUser);
+                        // Enviar el objeto usuario
+                        connection.sendEncryptedObject(selectedUser);
 
+                        // Como el servidor no envía una respuesta para MODIFY_USER, asumimos éxito
                         runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "Canvis aplicats satisfactòriament", Snackbar.LENGTH_LONG).show());
                     } catch (Exception e) {
-                        Log.e("UserDetailActivity", "Error guardant els canvis", e);
+                        Log.e(TAG, "Error guardant els canvis", e);
                         runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "ERROR guardant canvis", Snackbar.LENGTH_LONG).show());
                     } finally {
                         connection.close(); // Cerrar la conexión
                     }
                 }
             } catch (Exception e) {
-                Log.e("UserDetailActivity", "Error guardant els canvis", e);
+                Log.e(TAG, "Error guardant els canvis", e);
                 runOnUiThread(() -> Snackbar.make(findViewById(android.R.id.content), "ERROR guardant canvis", Snackbar.LENGTH_LONG).show());
             }
         }).start();
@@ -208,17 +209,18 @@ public class UserDetailActivity extends AppCompatActivity {
             ServerConnectionHelper connection = new ServerConnectionHelper();
             try {
                 connection.connect(); // Establecer la conexión
-                connection.sendCommand("DELETE_USER"); // Enviar comando al servidor
+                connection.sendEncryptedCommand("DELETE_USER"); // Enviar comando al servidor
 
                 // Enviar el ID del usuario a eliminar
-                connection.sendInt(selectedUser.getId());
+                connection.sendEncryptedInt(selectedUser.getId());
 
-                // Mostrar éxito en la interfaz de usuario
+                // Como el servidor no envía una respuesta para DELETE_USER, asumimos éxito
                 runOnUiThread(() -> {
                     Snackbar.make(findViewById(android.R.id.content), "Usuari eliminat correctament", Snackbar.LENGTH_SHORT).show();
+                    finish(); // Opcional: cerrar la actividad después de eliminar
                 });
             } catch (Exception e) {
-                Log.e("UserDetailActivity", "Error eliminant l'usuari", e);
+                Log.e(TAG, "Error eliminant l'usuari", e);
                 runOnUiThread(() -> Toast.makeText(UserDetailActivity.this, "Error eliminant l'usuari: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             } finally {
                 connection.close(); // Cerrar la conexión

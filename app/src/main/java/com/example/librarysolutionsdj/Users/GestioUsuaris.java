@@ -59,7 +59,7 @@ public class GestioUsuaris extends AppCompatActivity {
 
         // Configurar el listener de clic para cada elemento en la lista
         userListView.setOnItemClickListener((parent, view, position, id) -> {
-            User selectedUser = userList.get(position);
+            User selectedUser = (User) parent.getItemAtPosition(position);
             Intent intent = new Intent(GestioUsuaris.this, UserDetailActivity.class);
             intent.putExtra("selectedUser", selectedUser);  // Pasar el objeto User completo
             startActivity(intent);
