@@ -76,26 +76,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <EditText
-            android:id="@+id/start_date_edit_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="false"
-            android:hint="Data inici reserva"
-            android:textColor="#000"
-            android:textSize="24sp" />
-
-        <EditText
-            android:id="@+id/end_date_edit_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="false"
-            android:hint="Data finalització reserva"
-            android:textColor="#000"
-            android:textSize="24sp" />
-
         <Button
             android:id="@+id/reservar_button"
             android:layout_width="match_parent"

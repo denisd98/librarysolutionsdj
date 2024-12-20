@@ -1,64 +1,92 @@
 package com.example.librarysolutionsdj.Loans;
 
-import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.librarysolutionsdj.R;
+import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
+import com.example.librarysolutionsdj.SessionManager.SessionManager;
+import com.example.librarysolutionsdj.Users.UserService;
+import com.example.librarysolutionsdj.Users.UserProfile;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import app.model.Author;
+import app.model.Loan;
 import app.model.Media;
-import app.model.MediaType;
+import app.model.ModelException;
+import app.model.User;
+import app.model.UserType;
 
+/**
+ * Actividad que muestra los detalles de una obra y permite al usuario reservarla.
+ */
 public class MediaReservaDetailActivity extends AppCompatActivity {
 
-    private EditText titleEditText, yearPublicationEditText, descriptionEditText;
-    private EditText mediaTypeEditText; // Campo no editable
+    private static final String TAG = "MediaReservaDetail";
+
+    // Elementos de la interfaz de usuario
+    private EditText titleEditText, yearPublicationEditText, descriptionEditText, mediaTypeEditText;
     private ListView authorsListView;
     private ArrayAdapter<String> authorsAdapter;
-    private Media selectedMedia;
-
-    // Campos para fechas de reserva
-    private EditText startDateEditText, endDateEditText;
     private Button reservarButton;
     private ImageButton backButton;
+
+    // Objeto Media seleccionado
+    private Media selectedMedia;
+
+    // Gestor de sesión para obtener información del usuario actual
+    private SessionManager sessionManager;
+
+    // Servicio para manejar operaciones relacionadas con el usuario
+    private UserService userService;
+
+    // Indicador de progreso
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_reserva_detail);
 
+        // Inicializar el gestor de sesión
+        sessionManager = new SessionManager(this);
+
+        // Inicializar el UserService
+        userService = new UserService();
+
+        // Obtener el objeto Media pasado desde la actividad anterior
         selectedMedia = (Media) getIntent().getSerializableExtra("selectedMedia");
 
+        // Vincular elementos de la interfaz de usuario
         titleEditText = findViewById(R.id.title_edit_text);
         yearPublicationEditText = findViewById(R.id.year_publication_edit_text);
         descriptionEditText = findViewById(R.id.description_edit_text);
-        mediaTypeEditText = findViewById(R.id.media_type_edit_text); // Ahora es un EditText no editable
+        mediaTypeEditText = findViewById(R.id.media_type_edit_text);
         authorsListView = findViewById(R.id.authors_list_view);
-        startDateEditText = findViewById(R.id.start_date_edit_text);
-        endDateEditText = findViewById(R.id.end_date_edit_text);
         reservarButton = findViewById(R.id.reservar_button);
         backButton = findViewById(R.id.back_button);
 
-        // Configurar ListView de autores
+        // Configurar el ListView de autores
         authorsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
         authorsListView.setAdapter(authorsAdapter);
+        authorsListView.setChoiceMode(ListView.CHOICE_MODE_NONE); // No es necesario seleccionar autores al reservar
 
+        // Llenar los campos con los detalles de la obra seleccionada
         if (selectedMedia != null) {
             populateFieldsWithSelectedMedia();
+        } else {
+            Toast.makeText(this, "No se ha seleccionado ninguna obra.", Toast.LENGTH_LONG).show();
+            finish(); // Cerrar la actividad si no hay obra seleccionada
         }
 
         // Deshabilitar edición de campos
@@ -67,25 +95,115 @@ public class MediaReservaDetailActivity extends AppCompatActivity {
         descriptionEditText.setEnabled(false);
         mediaTypeEditText.setEnabled(false);
 
-        // Configurar selección de fechas
-        startDateEditText.setOnClickListener(v -> showDatePickerDialog(true));
-        endDateEditText.setOnClickListener(v -> showDatePickerDialog(false));
-
-        // Configurar eventos de botones
+        // Configurar eventos de los botones
         backButton.setOnClickListener(v -> finish());
 
-        // Botón de reservar
         reservarButton.setOnClickListener(v -> {
-            // Aquí podrías enviar la solicitud de reserva al servidor
-            // Por ahora, solo mostramos un Toast
-            Toast.makeText(this, "Reserva solicitada del " +
-                    startDateEditText.getText().toString() + " al " +
-                    endDateEditText.getText().toString(), Toast.LENGTH_LONG).show();
+            // Obtener el sessionId y userId del SessionManager
+            String sessionId = sessionManager.getSessionId();
+            int userId = sessionManager.getUserId();
 
+            if (sessionId == null || userId == -1) {
+                Toast.makeText(this, "Usuario no autenticado.", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            // Mostrar el ProgressDialog
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("Procesando reserva...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+
+            // Obtener el perfil del usuario actual
+            userService.getUserProfile(sessionId, new UserService.UserProfileCallback() {
+                @Override
+                public void onSuccess(UserProfile profile) {
+                    // Crear el objeto User basado en el perfil recibido y el userId de SessionManager
+                    User currentUser;
+                    try {
+                        currentUser = new User(
+                                userId,
+                                profile.getUsername(),
+                                profile.getPassword(), // La contraseña ya está encriptada
+                                profile.getAlias(),    // Alias mapeado a realname
+                                profile.getSurname1(),
+                                profile.getSurname2(),
+                                User.stringToUserType(profile.getUserType())
+                        );
+                    } catch (ModelException e) {
+                        runOnUiThread(() -> {
+                            progressDialog.dismiss();
+                            Toast.makeText(MediaReservaDetailActivity.this, "Error en el tipo de usuario: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        });
+                        return;
+                    }
+
+                    // Crear el objeto Loan sin fechas (serán asignadas por el servidor)
+                    Loan loan = new Loan(selectedMedia, currentUser);
+
+                    // Enviar la solicitud de reserva al servidor en un hilo separado
+                    new Thread(() -> {
+                        ServerConnectionHelper connection = new ServerConnectionHelper();
+                        try {
+                            // Establecer conexión con el servidor
+                            connection.connect();
+                            Log.d(TAG, "Conexión establecida con el servidor.");
+
+                            // Enviar el comando ADD_LOAN cifrado
+                            connection.sendEncryptedCommand("ADD_LOAN");
+                            Log.d(TAG, "Comando 'ADD_LOAN' enviado.");
+
+                            // Enviar el objeto Loan cifrado
+                            connection.sendEncryptedObject(loan);
+                            Log.d(TAG, "Objeto Loan enviado al servidor.");
+
+                            // No intentar leer una respuesta del servidor
+                            // Asumir que la operación fue exitosa si no hubo excepciones
+
+                            runOnUiThread(() -> {
+                                // Despachar el ProgressDialog
+                                if (progressDialog.isShowing()) {
+                                    progressDialog.dismiss();
+                                }
+
+                                // Mostrar mensaje de éxito
+                                Toast.makeText(MediaReservaDetailActivity.this, "Reserva enviada correctamente.", Toast.LENGTH_LONG).show();
+                                // Opcional: cerrar la actividad o actualizar la UI
+                                finish();
+                            });
+
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error al realizar la reserva: ", e);
+                            runOnUiThread(() -> {
+                                if (progressDialog.isShowing()) {
+                                    progressDialog.dismiss();
+                                }
+                                Toast.makeText(MediaReservaDetailActivity.this, "Error al realizar la reserva: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            });
+                        } finally {
+                            // Cerrar la conexión
+                            connection.close();
+                            Log.d(TAG, "Conexión cerrada.");
+                        }
+                    }).start();
+                }
+
+                @Override
+                public void onError(String errorMessage) {
+                    runOnUiThread(() -> {
+                        if (progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                        }
+                        Toast.makeText(MediaReservaDetailActivity.this, "Error al obtener el perfil del usuario: " + errorMessage, Toast.LENGTH_LONG).show();
+                    });
+                }
+            });
         });
-
     }
 
+    /**
+     * Llena los campos de la interfaz con los detalles de la obra seleccionada.
+     */
     private void populateFieldsWithSelectedMedia() {
         titleEditText.setText(selectedMedia.getTitle());
         yearPublicationEditText.setText(String.valueOf(selectedMedia.getYearPublication()));
@@ -102,22 +220,5 @@ public class MediaReservaDetailActivity extends AppCompatActivity {
             authorsAdapter.add("No hay autores asignados");
         }
         authorsAdapter.notifyDataSetChanged();
-    }
-
-    private void showDatePickerDialog(boolean isStartDate) {
-        final Calendar c = Calendar.getInstance();
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
-
-        DatePickerDialog dpd = new DatePickerDialog(this, (DatePicker view, int yearSelected, int monthSelected, int daySelected) -> {
-            String date = daySelected + "/" + (monthSelected + 1) + "/" + yearSelected;
-            if (isStartDate) {
-                startDateEditText.setText(date);
-            } else {
-                endDateEditText.setText(date);
-            }
-        }, year, month, day);
-        dpd.show();
     }
 }
