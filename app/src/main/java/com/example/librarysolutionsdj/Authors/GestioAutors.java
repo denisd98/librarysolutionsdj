@@ -15,12 +15,7 @@ import com.example.librarysolutionsdj.SessionManager.SessionManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import app.model.Author;
-import app.model.User;
 
-import java.io.ObjectInputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,7 +47,7 @@ public class GestioAutors extends AppCompatActivity {
         authorListView = findViewById(R.id.author_list_view);
         authorList = new ArrayList<>();
         sessionManager = new SessionManager(this);
-        backButton = findViewById(R.id.back_button);
+        backButton = findViewById(R.id.back_button5);
         addAuthorButton = findViewById(R.id.fab_add_author);
 
         // Configurar el botó per tornar enrere

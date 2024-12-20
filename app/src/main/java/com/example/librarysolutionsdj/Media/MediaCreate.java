@@ -17,9 +17,6 @@ import com.example.librarysolutionsdj.R;
 import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.util.ArrayList;
 
 import app.model.Author;
@@ -52,7 +49,7 @@ public class MediaCreate extends AppCompatActivity {
         mediaTypeSpinner = findViewById(R.id.media_type_spinner);
         authorsListView = findViewById(R.id.authors_list_view);
         saveButton = findViewById(R.id.save_button);
-        backButton = findViewById(R.id.back_button);
+        backButton = findViewById(R.id.back_button5);
 
         // Configurar Spinner de tipos de media
         ArrayAdapter<MediaType> mediaTypeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, MediaType.values());

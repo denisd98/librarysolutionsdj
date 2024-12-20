@@ -16,10 +16,6 @@ import com.example.librarysolutionsdj.R;
 import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
-
 import app.model.User;
 
 /**
@@ -54,7 +50,7 @@ public class UserCreate extends AppCompatActivity {
         surname2EditText = findViewById(R.id.surname2_edit_text);
         userTypeSpinner = findViewById(R.id.user_type_spinner);
         createButton = findViewById(R.id.create_button);
-        backButton = findViewById(R.id.back_button);
+        backButton = findViewById(R.id.back_button5);
 
         // Configurar l'Spinner amb els tipus d'usuari
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(

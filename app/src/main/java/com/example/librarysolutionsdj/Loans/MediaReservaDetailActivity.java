@@ -25,7 +25,6 @@ import app.model.Loan;
 import app.model.Media;
 import app.model.ModelException;
 import app.model.User;
-import app.model.UserType;
 
 /**
  * Actividad que muestra los detalles de una obra y permite al usuario reservarla.
@@ -74,7 +73,7 @@ public class MediaReservaDetailActivity extends AppCompatActivity {
         mediaTypeEditText = findViewById(R.id.media_type_edit_text);
         authorsListView = findViewById(R.id.authors_list_view);
         reservarButton = findViewById(R.id.reservar_button);
-        backButton = findViewById(R.id.back_button);
+        backButton = findViewById(R.id.back_button5);
 
         // Configurar el ListView de autores
         authorsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());

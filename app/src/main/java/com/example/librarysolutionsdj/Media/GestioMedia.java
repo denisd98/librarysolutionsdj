@@ -9,9 +9,6 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.librarysolutionsdj.Media.MediaAdapter;
-import com.example.librarysolutionsdj.Media.MediaCreate;
-import com.example.librarysolutionsdj.Media.MediaDetailActivity;
 import com.example.librarysolutionsdj.R;
 import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.example.librarysolutionsdj.SessionManager.SessionManager;
@@ -19,7 +16,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import app.crypto.CryptoUtils;
 import app.model.Media; // Asegúrate de tener una clase Media que implementa Serializable
-import app.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +43,7 @@ public class GestioMedia extends AppCompatActivity {
         mediaListView = findViewById(R.id.media_list_view);
         mediaList = new ArrayList<>();
         sessionManager = new SessionManager(this);
-        backButton = findViewById(R.id.back_button); // Inicialización del botón de volver
+        backButton = findViewById(R.id.back_button5); // Inicialización del botón de volver
         addMediaButton = findViewById(R.id.fab_add_media); // Inicialización del botón flotante
 
         // Configurar el botón de volver atrás

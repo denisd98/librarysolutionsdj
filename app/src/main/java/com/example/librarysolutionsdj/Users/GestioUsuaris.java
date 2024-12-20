@@ -45,7 +45,7 @@ public class GestioUsuaris extends AppCompatActivity {
         userList = new ArrayList<>();
         sessionManager = new SessionManager(this);
         userService = new UserService();
-        backButton = findViewById(R.id.back_button); // Inicialización del botón de volver
+        backButton = findViewById(R.id.back_button5); // Inicialización del botón de volver
         addUserButton = findViewById(R.id.fab_add_user); // Inicialización del botón flotante
 
         // Configurar el botón de volver atrás

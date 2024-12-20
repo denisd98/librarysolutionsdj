@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/loan_item_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <!-- Nombre de la Obra -->
+    <TextView
+        android:id="@+id/loan_media_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nombre de la Obra"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
+
+    <!-- Fecha de Inicio -->
+    <TextView
+        android:id="@+id/loan_start_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="4dp"
+        android:text="Inici: DD/MM/YYYY"
+        android:textSize="14sp" />
+
+    <!-- Fecha de Finalización -->
+    <TextView
+        android:id="@+id/loan_end_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="2dp"
+        android:text="Fi: DD/MM/YYYY"
+        android:textSize="14sp" />
+
+</LinearLayout>

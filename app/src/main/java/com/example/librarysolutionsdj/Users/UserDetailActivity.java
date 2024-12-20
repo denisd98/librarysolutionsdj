@@ -1,7 +1,6 @@
 // UserDetailActivity.java
 package com.example.librarysolutionsdj.Users;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -18,11 +17,7 @@ import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.example.librarysolutionsdj.SessionManager.SessionManager;
 import com.google.android.material.snackbar.Snackbar;
 
-import app.crypto.CryptoUtils;
 import app.model.User;
-
-import java.io.IOException;
-import java.net.Socket;
 
 /**
  * Activitat que permet gestionar els detalls d'un usuari existent.
@@ -66,7 +61,7 @@ public class UserDetailActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.password_edit_text);
         userTypeSpinner = findViewById(R.id.user_type_spinner);
         saveButton = findViewById(R.id.save_button);
-        backButton = findViewById(R.id.back_button);
+        backButton = findViewById(R.id.back_button5);
         deleteButton = findViewById(R.id.delete_button);
 
         // Configurar botons segons el perfil

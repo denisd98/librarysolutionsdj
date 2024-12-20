@@ -14,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.librarysolutionsdj.Authors.GestioAutors;
 import com.example.librarysolutionsdj.Loans.BibliotecaActivity;
+import com.example.librarysolutionsdj.Loans.UserLoansActivity;
 import com.example.librarysolutionsdj.Login.LoginActivity;
 import com.example.librarysolutionsdj.Media.GestioMedia;
 import com.example.librarysolutionsdj.R;
@@ -135,6 +136,13 @@ public class PanellUsuari extends AppCompatActivity {
         // Configuració del botó de logout
         Button logoutButton = findViewById(R.id.logout_btn);
         logoutButton.setOnClickListener(view -> performLogout());
+
+        // Configuració del botó de reservas
+        Button reservesButton = findViewById(R.id.reserves);
+        reservesButton.setOnClickListener(view -> {
+            Intent intent = new Intent(PanellUsuari.this, UserLoansActivity.class);
+            startActivity(intent);
+        });
     }
 
     /**

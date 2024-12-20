@@ -12,7 +12,7 @@
         android:layout_height="wrap_content">
 
         <ImageButton
-            android:id="@+id/back_button"
+            android:id="@+id/back_button5"
             android:layout_width="46dp"
             android:layout_height="46dp"
             android:layout_marginStart="4dp"

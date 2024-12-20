@@ -1,7 +1,6 @@
 package com.example.librarysolutionsdj.Authors;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -14,12 +13,6 @@ import com.example.librarysolutionsdj.R;
 import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.example.librarysolutionsdj.Users.MockServer;
 import com.google.android.material.snackbar.Snackbar;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
 
 import app.model.Author;
 
@@ -53,7 +46,7 @@ public class AuthorCreate extends AppCompatActivity {
         nationalityEditText = findViewById(R.id.nationality_edit_text);
         yearBirthEditText = findViewById(R.id.year_birth_edit_text);
         createButton = findViewById(R.id.create_button);
-        backButton = findViewById(R.id.back_button);
+        backButton = findViewById(R.id.back_button5);
 
         // Configuració dels botons
         createButton.setOnClickListener(v -> createAuthor());

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/user_loans_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Barra superior con botón de volver y título -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingBottom="16dp">
+
+        <!-- Botón de Volver Atrás -->
+        <Button
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="X" />
+
+        <!-- Título de la Actividad -->
+        <TextView
+            android:id="@+id/loans_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Préstamos Activos"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- ListView para mostrar los préstamos -->
+    <ListView
+        android:id="@+id/loans_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@color/black"
+        android:dividerHeight="1dp"/>
+
+</LinearLayout>

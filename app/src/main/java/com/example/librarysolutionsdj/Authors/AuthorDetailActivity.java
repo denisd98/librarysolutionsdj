@@ -14,10 +14,6 @@ import com.example.librarysolutionsdj.R;
 import com.example.librarysolutionsdj.ServerConnection.ServerConnectionHelper;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
-
 import app.model.Author;
 
 /**
@@ -54,7 +50,7 @@ public class AuthorDetailActivity extends AppCompatActivity {
         yearBirthEditText = findViewById(R.id.year_birth_edit_text);
         saveButton = findViewById(R.id.save_button);
         deleteButton = findViewById(R.id.delete_button);
-        backButton = findViewById(R.id.back_button);
+        backButton = findViewById(R.id.back_button5);
 
         // Carregar les dades de l'autor seleccionat
         if (selectedAuthor != null) {
